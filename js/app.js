@@ -163,6 +163,9 @@
     if (first && !st.ride) { const n = nearestBikes(1)[0]; if (n) map.fitBounds(L.latLngBounds([[st.me.lat, st.me.lng], [n.b.lat, n.b.lng]]).pad(0.6), { maxZoom: 16, paddingBottomRight: [0, 200] }); }
   }
 
+  // movement speed for the demo: speeds up the shared simulation clock (walking, riding and the meter)
+  const speedCtl = () => `<div class="simspeed"><span>${I.clock}${t("simSpeed")}</span><div class="seg mini" role="group">${[1, 2, 10, 30].map((x) => `<button data-spd="${x}" class="num ${G.Clock.speed === x ? "on" : ""}">×${x}</button>`).join("")}</div></div>
+      <p class="sim-note">${t("simNote")}</p>`;
   const fmtMin = (m) => Math.max(1, Math.round(m / 80)); // walking ~80 m/min
   function browseView() {
     const s = S();
@@ -170,6 +173,8 @@
     if (st.selected) { b = G.Store.get().bikes[st.selected]; d = b ? G.distM(st.me, b) : 0; if (!b || b.status !== "available") st.selected = null; }
     if (!st.selected) { const n = nearestBikes(1)[0]; if (!n) return `<div class="empty">${I.bike}<p>${t("noBikes")}</p></div>`; b = n.b; d = n.d; }
     const near = d <= s.nearM, spot = G.SPOTS.find((x) => x.id === b.spot);
+    if (st.walk) return `<div class="sheet-head"><span class="eyebrow">${I.walk}${t("walking")}</span><span class="chip num">${b.id}</span></div>
+      <div class="stat-row"><div class="stat"><small>${t("distance")}</small><b class="num" data-live="walkb">${G.dist(d)}</b></div></div>${speedCtl()}`;
     const bat = b.battery;
     return `
       <div class="sheet-head">
@@ -208,6 +213,7 @@
            : st.walk ? `<button class="btn btn-secondary btn-block big" disabled><span class="spinner dark"></span><span>${t("walking")}</span></button>`
            : `<button class="btn btn-primary btn-block big" data-act="walk">${I.walk}<span>${t("walkThere")}</span></button>
               <button class="btn btn-ghost btn-block" data-act="imhere">${t("imHere")}</button>`}
+      ${speedCtl()}
       <button class="btn btn-ghost btn-block danger-text" data-act="cancelres">${t("cancelRes")}</button>`;
   }
   function ridingView() {
@@ -228,7 +234,8 @@
       </div>
       ${!inZone && !st.move ? `<p class="hint-line warn">${I.warn}<span>${t("outOfZone", { d: G.dist(ns.d) })}</span></p>` : ""}
       <button class="hold-btn" data-act="hold" ${st.move ? "disabled" : ""}><span class="hold-fill"></span>${I.lock}<span>${t("holdToLock")}</span></button>
-      <p class="price-line">${I.bluetooth}<span>${t("lockOnlyApp")}</span></p>`;
+      <p class="price-line">${I.bluetooth}<span>${t("lockOnlyApp")}</span></p>
+      ${speedCtl()}`;
   }
   function lockedView() {
     return `
@@ -271,6 +278,7 @@
       el.onclick = () => actions[a]?.(el.dataset);
     });
     body.querySelectorAll("[data-dest]").forEach((el) => (el.onclick = () => setDest(G.SPOTS.find((s) => s.id === el.dataset.dest))));
+    body.querySelectorAll("[data-spd]").forEach((el) => (el.onclick = () => { G.Clock.setSpeed(+el.dataset.spd); updateSimBadge(); render(); }));
     body.querySelectorAll("[data-star]").forEach((el) => (el.onclick = () => { G.API.rate(st.receipt, +el.dataset.star); render(); }));
     tick();
   }
@@ -440,6 +448,7 @@
     document.querySelectorAll("[data-live]").forEach((el) => {
       const k = el.dataset.live;
       if (k === "hold" && r?.holdUntil) { const left = r.holdUntil - G.Clock.now(); el.textContent = G.clock(left); el.classList.toggle("warn-text", left < 3 * 60000); }
+      if (k === "walkb" && st.selected) el.textContent = G.dist(G.distM(st.me, G.Store.get().bikes[st.selected]));
       if (k === "walkd" && r) el.textContent = G.dist(G.distM(st.me, G.Store.get().bikes[r.bikeId]));
       if ((k === "time" || k === "cost" || k === "costn") && r?.unlockedAt) {
         const ms = G.Clock.now() - r.unlockedAt;
