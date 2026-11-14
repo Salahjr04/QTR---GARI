@@ -145,6 +145,13 @@ window.Gari = window.Gari || {};
     return JSON.parse(txt);
   }
 
+  // recommended for a public site: the key stays on the server (see server/ and docs/SECURE_API.md)
+  async function askProxy(dataUrl, settings) {
+    const res = await fetch(settings.visionProxy.replace(/\/$/, "") + "/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: dataUrl.split(",")[1] }) });
+    if (!res.ok) throw new Error("proxy " + res.status);
+    return res.json();
+  }
+
   // ---------- main
   async function analyze(file, ctx = {}) {
     const t0 = performance.now();
@@ -154,8 +161,8 @@ window.Gari = window.Gari || {};
     const q = quality(big), lock = findLock(big), bike = findWheels(small);
     const settings = ctx.settings || G.Store.get().settings;
     let ai = null, engine = "device";
-    const wantClaude = settings.claudeKey && settings.visionEngine !== "device";
-    if (wantClaude) { try { ai = await askClaude(draw(bmp, 1024).c.toDataURL("image/jpeg", 0.85), settings); engine = "claude"; } catch (e) { console.warn("Claude vision unavailable, using on-device result", e); ai = null; } }
+    const wantClaude = (settings.visionProxy || settings.claudeKey) && settings.visionEngine !== "device";
+    if (wantClaude) { try { const img = draw(bmp, 1024).c.toDataURL("image/jpeg", 0.85); ai = settings.visionProxy ? await askProxy(img, settings) : await askClaude(img, settings); engine = "claude"; } catch (e) { console.warn("Claude vision unavailable, using on-device result", e); ai = null; } }
 
     // is the lock on a wheel? (lock centre within ~1.35 wheel radii of a wheel centre; aspect-corrected)
     const aspect = big.h / big.w;

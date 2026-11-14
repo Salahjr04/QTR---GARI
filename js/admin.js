@@ -44,7 +44,7 @@
       activeRiders: "راكبين بالمحاكاة الحين", seed: "ولّد رحلات اليوم (أمثلة)", seeded: "انضافت {n} رحلة مثال", ev_seed: "انضافت رحلات أمثلة لليوم", simLog: "سجل المحاكاة", reset: "مسح كل البيانات", resetQ: "متأكد؟ بتنمسح كل الرحلات وترجع الدراجات لأماكنها.",
       pricing: "الأسعار", unlockFee: "فتح القفل (د.ك)", reserveFee: "حجز دراجة بعيدة (د.ك)", blockFee: "كل فترة (د.ك)", blockMin: "طول الفترة (دقيقة)", nearM: "مسافة «قريبة» بدون حجز (م)", holdMin: "مدة الحجز (دقيقة)", parkRadius: "نصف قطر منطقة الركن (م)",
       vision: "تحليل الصورة بالذكاء الاصطناعي", visionEngine: "المحرك", e_auto: "تلقائي (Claude إذا في مفتاح)", e_device: "على الجهاز فقط", e_claude: "Claude",
-      apiKey: "مفتاح Anthropic API (اختياري)", apiKeyHint: "ينحفظ بهذا المتصفح بس. للنسخة التجريبية فقط؛ بالنسخة الحقيقية يكون على السيرفر.", model: "الموديل", save: "حفظ", saved: "انحفظ",
+      proxyUrl: "رابط سيرفر التحليل (الطريقة الآمنة)", proxyHint: "للموقع العام: المفتاح يكون بالسيرفر بس، والموقع يرسل الصورة. الشرح في docs/SECURE_API.md", apiKey: "مفتاح Anthropic API (اختياري)", apiKeyHint: "ينحفظ بهذا المتصفح بس. للنسخة التجريبية فقط؛ بالنسخة الحقيقية يكون على السيرفر.", model: "الموديل", save: "حفظ", saved: "انحفظ",
       ev_unlock: "{name} فتح {bike}", ev_lock: "قفل الدراجة", ev_photo_pass: "صورة مقبولة", ev_photo_fail: "صورة مرفوضة ({r})", ev_photo_review: "صورة للمراجعة", ev_done: "رحلة انتهت", ev_missed: "طلب ضاع بـ {zone}", ev_start: "بدأت المحاكاة", ev_stop: "وقفت المحاكاة",
       layers: "الطبقات", traffic: "زحمة الشوارع", demand: "الطلب المتوقع", legendBikes: "متاحة · محجوزة · مستخدمة", min: "د", km: "كم", openRider: "افتح تطبيق المستخدم", close: "إغلاق", noPhoto: "رحلة محاكاة (بدون صورة)" },
     en: { console: "Console", overview: "Overview", map: "Live map", forecast: "AI forecast", rides: "Rides", fleet: "Fleet", sim: "Simulator", settings: "Settings", api: "API log",
@@ -68,7 +68,7 @@
       activeRiders: "Simulated riders now", seed: "Generate today's example rides", seeded: "Added {n} example rides", ev_seed: "Example rides added for today", simLog: "Simulation log", reset: "Reset all data", resetQ: "Sure? All rides are deleted and bikes go back to their zones.",
       pricing: "Pricing", unlockFee: "Unlock (KD)", reserveFee: "Book a far bike (KD)", blockFee: "Per block (KD)", blockMin: "Block length (min)", nearM: "“Near” distance, no booking (m)", holdMin: "Booking hold (min)", parkRadius: "Parking zone radius (m)",
       vision: "AI photo check", visionEngine: "Engine", e_auto: "Auto (Claude when a key is set)", e_device: "On-device only", e_claude: "Claude",
-      apiKey: "Anthropic API key (optional)", apiKeyHint: "Stored in this browser only. Prototype only; in production this call runs on the server.", model: "Model", save: "Save", saved: "Saved",
+      proxyUrl: "Vision server URL (the secure way)", proxyHint: "For a public site: the key lives only on the server and the site sends just the photo. See docs/SECURE_API.md", apiKey: "Anthropic API key (optional)", apiKeyHint: "Stored in this browser only. Prototype only; in production this call runs on the server.", model: "Model", save: "Save", saved: "Saved",
       ev_unlock: "{name} unlocked {bike}", ev_lock: "Bike locked", ev_photo_pass: "Photo passed", ev_photo_fail: "Photo rejected ({r})", ev_photo_review: "Photo sent to review", ev_done: "Ride completed", ev_missed: "Missed demand at {zone}", ev_start: "Simulation started", ev_stop: "Simulation paused",
       layers: "Layers", traffic: "Street traffic", demand: "Expected demand", legendBikes: "Available · Reserved · In use", min: "min", km: "km", openRider: "Open rider app", close: "Close", noPhoto: "Simulated ride (no photo)" },
   };
@@ -403,6 +403,8 @@
         </section>
         <section class="card"><div class="card-head"><h2>${a("vision")}</h2></div>
           <label class="frow"><span>${a("visionEngine")}</span><select data-k="visionEngine">${["auto", "device", "claude"].map((v) => `<option value="${v}" ${s.visionEngine === v ? "selected" : ""}>${a("e_" + v)}</option>`).join("")}</select></label>
+          <label class="frow"><span>${a("proxyUrl")}</span><input data-k="visionProxy" value="${esc(s.visionProxy || "")}" placeholder="https://gari-vision-proxy.….workers.dev" dir="ltr" autocomplete="off"></label>
+          <p class="muted small">${a("proxyHint")}</p>
           <label class="frow"><span>${a("apiKey")}</span><input type="password" data-k="claudeKey" value="${esc(s.claudeKey)}" placeholder="sk-ant-…" dir="ltr" autocomplete="off"></label>
           <label class="frow"><span>${a("model")}</span><input data-k="claudeModel" value="${esc(s.claudeModel)}" dir="ltr"></label>
           <p class="muted small">${a("apiKeyHint")}</p>

@@ -88,6 +88,9 @@ Demand per parking zone = hourly pattern (workdays vs Friday/Saturday, Kuwait ti
 | `test-photos/` | Sample photos to upload; regenerate with `node tools/make_test_photos.js` |
 | `tools/` | Map data builders and the photo generator |
 | `docs/ARCHITECTURE.md` | Prototype vs production architecture |
+| `docs/SECURE_API.md` | How to run Claude photo checks without exposing the API key |
+| `docs/ROADMAP.md` | Next steps (e.g. separating admin from rider) |
+| `server/` | Cloudflare Worker that keeps the API key secret |
 
 ### Prototype limits
 - Sign-in with Apple/Google, the Bluetooth lock and the payments (KNET, Visa, Apple Pay) are simulated. Nothing is charged.

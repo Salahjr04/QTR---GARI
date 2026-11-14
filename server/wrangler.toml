@@ -1,0 +1,14 @@
+# Gari vision proxy: keeps the Anthropic API key on the server, never in the website.
+name = "gari-vision-proxy"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Only these sites may call the proxy (comma-separated). Add your GitHub Pages address.
+ALLOWED_ORIGINS = "https://salahjr04.github.io,http://localhost:8000"
+MODEL = "claude-opus-5-5"
+# Max photo checks per visitor IP per hour
+RATE_PER_HOUR = "30"
+
+# The key is NOT here. Set it once with:  npx wrangler secret put ANTHROPIC_API_KEY

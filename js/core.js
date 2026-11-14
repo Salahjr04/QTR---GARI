@@ -22,6 +22,7 @@ window.Gari = window.Gari || {};
     holdMin: 15,          // a booking holds the bike this long
     parkRadiusM: 80,      // a ride must end inside a Gari parking zone
     visionEngine: "auto", // auto | device | claude
+    visionProxy: "",      // URL of the server proxy that holds the API key (recommended for a public site)
     claudeKey: "",
     claudeModel: "claude-opus-5-5",
   };
