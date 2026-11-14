@@ -214,3 +214,7 @@ table.rows tbody tr:hover { background: var(--surface-2); }
 .gate-card .mini-btn { justify-self: center; }
 .title-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; flex-wrap: wrap; }
 #outBtn { width: 100%; margin-top: 6px; }
+/* ride drawer: long API lines scroll inside their box instead of stretching the drawer */
+.ddrawer { grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; } /* max-content: the photo row must not collapse when the drawer scrolls */
+.ddrawer > * { min-width: 0; }
+.ddrawer pre.code { overflow-x: auto; max-width: 100%; }

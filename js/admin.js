@@ -328,7 +328,7 @@
     $("#detail").hidden = false; requestAnimationFrame(() => $("#detail").classList.add("open"));
     $("#dclose").onclick = closeRide; $("#detail").onclick = (e) => { if (e.target.id === "detail") closeRide(); };
     if (r.route?.length > 1) {
-      const m = L.map("dmap", { zoomControl: false, attributionControl: false }); G.addBaseMap(m);
+      const m = L.map("dmap", { zoomControl: false, attributionControl: false }).setView([r.route[0][0], r.route[0][1]], 15); G.addBaseMap(m);
       const pl = L.polyline(r.route.map((p) => [p[0], p[1]]), { color: css("--brand"), weight: 4 }).addTo(m);
       m.fitBounds(pl.getBounds().pad(0.2));
     }

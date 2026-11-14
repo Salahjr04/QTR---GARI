@@ -52,7 +52,7 @@ window.Gari = window.Gari || {};
         [minorCase, midCase, majCase, minor, mid, maj].forEach((l) => { if (map.hasLayer(l)) { l.setStyle({ weight: styled.find((s) => s[0] === l)[1]().weight }); l.bringToFront(); } });
       };
       map.on("zoomend", byZoom); byZoom();
-      map.attributionControl.addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>');
+      map.attributionControl?.addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>');
     }
 
     const group = L.layerGroup().addTo(map);
