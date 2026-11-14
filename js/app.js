@@ -18,11 +18,14 @@
   function i18nStatic(root = document) { root.querySelectorAll("[data-t]").forEach((el) => (el.textContent = t(el.dataset.t))); }
   function boot() {
     i18nStatic();
-    const sess = G.Session.get();
-    setTimeout(() => {
+    let sess = G.Session.get();
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    Promise.all([wait(1100), Promise.race([G.Sync ? G.Sync.ready : null, wait(3000)])]).then(() => {
+      // with a backend, a username + password account needs its server token; without one, sign in again
+      if (sess && sess.provider === "password" && G.Sync?.isOnline() && !G.Sync.hasToken()) { G.Session.clear(); sess = null; }
       $("#splash").classList.add("hide"); setTimeout(() => $("#splash").remove(), 500);
       if (sess) { st.user = sess; startApp(); } else showAuth();
-    }, 1100);
+    });
   }
 
   // ------------------------------------------------------------------ auth
@@ -40,10 +43,16 @@
       b.innerHTML = `<span class="spinner dark"></span>`;
       setTimeout(() => { toast(t("providerSoon", { p: p === "apple" ? "Apple" : "Google" })); finishAuth(G.signIn(p, G.getLang() === "ar" ? "مستخدم " + name : name + " user")); }, 900);
     }));
-    $("#authForm").onsubmit = (e) => {
+    $("#authForm").onsubmit = async (e) => {
       e.preventDefault(); const u = $("#authUser").value.trim(), p = $("#authPass").value;
       const err = !u ? t("needUser") : p.length < 4 ? t("needPass") : "";
       $("#authErr").textContent = err; if (err || !consentOk()) return;
+      if (G.Sync?.isOnline()) { // real account on the server: created on first sign-in, password checked after that
+        const btn = $("#authForm button[type=submit]"); btn.disabled = true;
+        try { await G.Sync.passwordAuth(u, p); }
+        catch (x) { $("#authErr").textContent = t(x.code === "wrong_password" ? "wrongPass" : x.code === "rate_limited" ? "tooMany" : "netErr"); return; }
+        finally { btn.disabled = false; }
+      }
       finishAuth(G.signIn("password", u));
     };
     $("#authSkip").onclick = () => consentOk() && finishAuth(G.signIn("guest", t("guest")));
@@ -52,7 +61,7 @@
     modal.open(`<div class="modal-head"><h3>${t(k === "terms" ? "termsT" : "privacyT")}</h3><button class="icon-btn" data-close>${I.x}</button></div><div class="legal-body">${t(k === "terms" ? "termsBody" : "privacyBody")}</div>`);
   }
   function finishAuth(user) {
-    st.user = G.Session.get();
+    st.user = G.Session.get(); G.Sync?.now();
     $("#auth").classList.add("leave");
     setTimeout(() => { $("#auth").hidden = true; $("#auth").classList.remove("leave"); startApp(); toast(t("welcome", { name: user.name })); }, 260);
   }
@@ -514,7 +523,6 @@
       <div class="drawer-sec"><div class="sec-label">${I.globe}${t("language")}</div>${seg("lang", [["ar", "العربية"], ["en", "English"]], G.getLang())}</div>
       <div class="drawer-sec"><div class="sec-label">${I.moon}${t("theme")}</div>${seg("theme", [["light", t("light")], ["dark", t("dark")], ["auto", t("auto")]], G.getTheme())}</div>
       <div class="drawer-foot">
-        <a class="drawer-link" href="admin.html">${I.chart}<span>${t("admin")}</span></a>
         <p class="legal"><button type="button" data-d="terms">${t("termsT")}</button><span>·</span><button type="button" data-d="privacy">${t("privacyT")}</button></p>
         <button class="drawer-link danger-text" data-d="signout">${I.logout}<span>${t("signOut")}</span></button>
       </div>`;
@@ -523,7 +531,7 @@
     d.querySelectorAll("[data-d]").forEach((b) => (b.onclick = () => {
       const k = b.dataset.d; closeDrawer();
       if (k === "history") showHistory(); if (k === "wallet") G.UI.choosePayment(st.user); if (k === "pricing") showPricing(); if (k === "how") showHow(); if (k === "terms" || k === "privacy") showLegal(k);
-      if (k === "signout") { G.Session.clear(); st.user = null; $("#app").hidden = true; showAuth(); }
+      if (k === "signout") { G.Session.clear(); G.Sync?.signOut(); st.user = null; $("#app").hidden = true; showAuth(); }
     }));
     d.querySelectorAll("[data-seg]").forEach((g) => g.querySelectorAll("button").forEach((b) => (b.onclick = () => {
       if (g.dataset.seg === "lang") { G.setLang(b.dataset.v); refreshAll(); if (st.ai) drawAI(); updateSimBadge(); }

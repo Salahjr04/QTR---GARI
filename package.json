@@ -1,0 +1,8 @@
+{
+  "name": "gari",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Gari bike sharing: rider app, admin dashboard and backend API",
+  "scripts": { "start": "node backend/server.js" },
+  "engines": { "node": ">=18" }
+}

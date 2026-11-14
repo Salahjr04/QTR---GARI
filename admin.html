@@ -13,19 +13,20 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/admin.css">
 </head>
-<body>
-  <div class="adm">
+<body data-role="admin">
+  <div class="adm" hidden>
     <aside class="side">
       <a class="side-logo" href="admin.html"><img src="assets/logo.png" alt="Gari" class="logo-img light-only"><img src="assets/logo-light.png" alt="Gari" class="logo-img dark-only"><span class="side-tag" data-a="console"></span></a>
       <nav class="side-nav" id="nav"></nav>
       <div class="side-foot">
         <a class="side-link" href="index.html" id="riderLink"></a>
         <div class="side-row"><button class="mini-btn" id="langBtn"></button><button class="mini-btn" id="themeBtn"></button></div>
+        <button class="mini-btn" id="outBtn"></button>
       </div>
     </aside>
     <div class="main">
       <header class="ahead">
-        <h1 id="title"></h1>
+        <div class="title-wrap"><h1 id="title"></h1><span class="chip" id="apiChip"></span></div>
         <div class="clockbox">
           <div class="sim-clock"><small id="simDay"></small><b class="num" id="simTime">--:--</b></div>
           <div class="speed" id="speedSeg" role="group"></div>
@@ -46,6 +47,7 @@
   <script src="js/i18n.js"></script>
   <script src="js/core.js"></script>
   <script src="js/forecast.js"></script>
+  <script src="js/sync.js"></script>
   <script src="js/sim.js"></script>
   <script src="js/admin.js"></script>
 </body>
