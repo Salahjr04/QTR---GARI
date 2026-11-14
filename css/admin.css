@@ -218,3 +218,7 @@ table.rows tbody tr:hover { background: var(--surface-2); }
 .ddrawer { grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; } /* max-content: the photo row must not collapse when the drawer scrolls */
 .ddrawer > * { min-width: 0; }
 .ddrawer pre.code { overflow-x: auto; max-width: 100%; }
+/* short screens: the side menu scrolls instead of cutting its last buttons */
+.side { overflow-y: auto; }
+@media (min-width: 861px) { @supports (height: 100dvh) { .adm { min-height: 100dvh; } .side { height: 100dvh; } } }
+@media (max-width: 860px) { #outBtn { width: auto; margin: 0; padding: 0 12px; white-space: nowrap; } }

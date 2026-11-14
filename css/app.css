@@ -341,3 +341,40 @@ body { overflow: hidden; overscroll-behavior: none; }
 .helmet-note { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--muted); }
 .helmet-note .ico { width: 16px; height: 16px; color: var(--brand); }
 .field { min-width: 0; } .field input, .field select { width: 100%; min-width: 0; }
+
+/* distance milestones */
+.ms-card { display: grid; gap: 6px; padding: 12px 14px; border-radius: var(--radius); background: var(--brand-softer); border: 1px solid var(--brand-soft); }
+.ms-card.won { background: var(--brand-soft); }
+.ms-won { display: flex; align-items: center; gap: 8px; color: var(--brand-strong); }
+.ms-won .ico { width: 20px; height: 20px; fill: currentColor; }
+.ms-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13.5px; }
+.ms-top b { font-size: 16px; }
+.ms-bar { height: 8px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
+.ms-bar i { display: block; height: 100%; border-radius: 99px; background: var(--brand); transition: width .6s ease; }
+.ms-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.ms-badge { display: grid; justify-items: center; gap: 2px; padding: 12px 6px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); text-align: center; }
+.ms-badge .ms-ico { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-3); margin-bottom: 4px; }
+.ms-badge .ico { width: 18px; height: 18px; }
+.ms-badge.on { color: var(--text); border-color: var(--brand); background: var(--brand-softer); }
+.ms-badge.on .ms-ico { background: var(--brand); color: var(--brand-ink); }
+.ms-badge.on .ico { fill: currentColor; }
+.ms-badge small { font-size: 11.5px; }
+
+/* flexible height: phone browser bars (dvh), short screens and landscape phones */
+@supports (height: 100dvh) {
+  .sheet { max-height: 78dvh; }
+  .modal { max-height: 92dvh; }
+}
+@media (max-height: 640px) {
+  .sheet { max-height: 72vh; padding-top: 6px; }
+  .auth-hero { margin: 2vh 0 12px; }
+  .auth-logo { width: auto; height: 84px; }
+  .receipt-top h2 { margin: 2px 0; }
+}
+@media (max-height: 640px) { @supports (height: 100dvh) { .sheet { max-height: 72dvh; } } }
+/* landscape phone: the sheet becomes a side card so the map stays visible */
+@media (orientation: landscape) and (max-height: 520px) and (min-width: 560px) {
+  .sheet { inset-inline-start: 10px; inset-inline-end: auto; bottom: 10px; width: min(400px, 52vw); max-height: calc(100vh - 84px); border-radius: 22px; border: 1px solid var(--line); }
+  .fab.locate { bottom: 14px; inset-inline-end: 12px; }
+  .modal { max-height: 96vh; }
+}

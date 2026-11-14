@@ -54,6 +54,8 @@ window.Gari = window.Gari || {};
       privacyBody: "<ul><li>نجمع: الاسم، الموقع وقت استخدام التطبيق، مسار الرحلة، صورة إنهاء الرحلة، وطريقة الدفع (بدون أرقام البطاقة كاملة).</li><li>نستخدمها عشان: تشغيل الرحلة والفاتورة، التأكد من ركن الدراجة، السلامة، وتحسين توقعات الطلب.</li><li>صور الإنهاء ممكن يحللها الذكاء الاصطناعي للتأكد من القفل ومكان الركن.</li><li>ما نبيع بياناتك لأي طرف.</li><li>بالنسخة التجريبية كل البيانات تنحفظ بمتصفحك بس.</li><li>تقدر تطلب مسح بياناتك بأي وقت.</li></ul>",
       simBadge: "محاكاة ×{n}", simSpeed: "سرعة الحركة", simNote: "محاكاة للعرض فقط، مو مشي أو ركوب فعلي", setLoc: "حط موقعي هني", locSet: "تغير موقعك",
       bikeTaken: "أحد سبقك على هذي الدراجة", min: "د", m: "م", km: "كم", kd: "د.ك",
+      milestones: "إنجازاتي", msTotal: "مجموع اللي ركبته", msNext: "باقي {d} على شارة «{name}» ({k} كم)", msAll: "جمعت كل الشارات، أسطورة!", msWon: "مبروك! شارة «{name}» · {k} كم", msRides: "{n} رحلة مكتملة",
+      ms2: "البداية", ms5: "مستكشف", ms10: "راكب", ms25: "محترف", ms50: "بطل", ms100: "أسطورة",
       howItWorks: "شلون تشتغل", step1: "لقِ أقرب دراجة على الخريطة", step2: "افتح القفل من التطبيق", step3: "اركب واستمتع", step4: "اقفلها وصوّرها عشان يوقف العداد",
     },
     en: {
@@ -107,6 +109,8 @@ window.Gari = window.Gari || {};
       privacyBody: "<ul><li>We collect: name, location while the app is in use, ride route, end-of-ride photo and payment method (never the full card number).</li><li>We use it to run rides and billing, verify parking, keep riders safe and improve demand forecasts.</li><li>End-of-ride photos may be analysed by AI to check the lock and parking spot.</li><li>We never sell your data.</li><li>In this prototype all data stays in your browser.</li><li>You can ask us to delete your data at any time.</li></ul>",
       simBadge: "Simulation ×{n}", simSpeed: "Movement speed", simNote: "Demo simulation only, not real walking or riding", setLoc: "Set my location here", locSet: "Location updated",
       bikeTaken: "Someone just took this bike", min: "min", m: "m", km: "km", kd: "KD",
+      milestones: "My milestones", msTotal: "Total distance", msNext: "{d} to the “{name}” badge ({k} km)", msAll: "Every badge collected. Legend!", msWon: "Congrats! “{name}” badge · {k} km", msRides: "{n} completed rides",
+      ms2: "First spin", ms5: "Explorer", ms10: "Rider", ms25: "Pro", ms50: "Champion", ms100: "Legend",
       howItWorks: "How it works", step1: "Find the nearest bike on the map", step2: "Unlock it from the app", step3: "Ride and enjoy", step4: "Lock it and take a photo to stop the meter",
     },
   };

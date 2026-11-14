@@ -164,6 +164,29 @@
     st.ride = r;
   }
 
+  // ------------------------------------------------------------------ distance milestones (a reason to come back)
+  const MILESTONES = [2, 5, 10, 25, 50, 100]; // km ridden in total
+  const myRides = () => G.Store.get().rides.filter((r) => r.userId === st.user.id && r.status === "completed");
+  const totalKm = () => myRides().reduce((s, r) => s + (r.distanceM || 0), 0) / 1000;
+  const kmText = (km) => `${km >= 100 ? Math.round(km) : km.toFixed(1)} ${t("km")}`;
+  function progressCard(km, justKm = 0) {
+    const next = MILESTONES.find((k) => km < k), prev = [...MILESTONES].reverse().find((k) => km >= k) || 0;
+    const won = MILESTONES.filter((k) => km >= k && km - justKm < k).pop(); // reached by this ride
+    const pct = next ? Math.max(4, Math.min(100, ((km - prev) / (next - prev)) * 100)) : 100;
+    return `<div class="ms-card ${won ? "won" : ""}">
+      ${won ? `<div class="ms-won">${I.star}<b>${t("msWon", { k: won, name: t("ms" + won) })}</b></div>` : ""}
+      <div class="ms-top"><span>${t("msTotal")}</span><b class="num">${kmText(km)}</b></div>
+      <div class="ms-bar"><i style="width:${pct}%"></i></div>
+      <small class="muted">${next ? t("msNext", { d: kmText(Math.max(0.1, next - km)), k: next, name: t("ms" + next) }) : t("msAll")}</small></div>`;
+  }
+  function showMilestones() {
+    const km = totalKm(), rides = myRides();
+    modal.open(`<div class="modal-head"><h3>${t("milestones")}</h3><button class="icon-btn" data-close>${I.x}</button></div>
+      ${progressCard(km)}
+      <div class="ms-grid">${MILESTONES.map((k) => `<div class="ms-badge ${km >= k ? "on" : ""}"><span class="ms-ico">${km >= k ? I.star : I.lock}</span><b class="num">${k} ${t("km")}</b><small>${t("ms" + k)}</small></div>`).join("")}</div>
+      <p class="muted small center">${t("msRides", { n: rides.length })}</p>`);
+  }
+
   // ------------------------------------------------------------------ sheet rendering
   function render(first) {
     const body = $("#sheetBody"); if (!body) return;
@@ -281,6 +304,7 @@
           <div class="tot"><span>${t("total")}</span><span class="num">${G.money(f.total)}</span></div>
           <div class="paid-by">${G.UI.METHOD_ICON[r.payment?.method] || ""}<span>${t("paid")} · <span class="num">${r.payment?.ref || ""}</span></span></div>
         </div>
+        ${progressCard(totalKm(), (r.distanceM || 0) / 1000)}
         <div class="rate"><span>${t("rate")}</span><div class="stars">${[1, 2, 3, 4, 5].map((n) => `<button data-star="${n}" class="${(r.rating || 0) >= n ? "on" : ""}" aria-label="${n}">${I.star}</button>`).join("")}</div></div>
         <button class="btn btn-primary btn-block big" data-act="done">${t("done")}</button>
       </div>`;
@@ -516,6 +540,7 @@
       <div class="drawer-head"><div class="avatar">${esc(initials)}</div><div><b>${esc(u.name)}</b><small class="muted">${u.provider === "guest" ? t("guest") : u.provider === "password" ? "@" + esc(u.name) : u.provider === "apple" ? "Apple" : "Google"}</small></div></div>
       <nav class="drawer-nav">
         <button data-d="history">${I.history}<span>${t("history")}</span>${I.chevron}</button>
+        <button data-d="milestones">${I.star}<span>${t("milestones")}</span><small class="muted num">${kmText(totalKm())}</small>${I.chevron}</button>
         <button data-d="wallet">${I.card}<span>${t("wallet")}</span><small class="muted">${pm ? esc(G.UI.methodLabel(pm)) : ""}</small>${I.chevron}</button>
         <button data-d="pricing">${I.tag}<span>${t("pricing")}</span>${I.chevron}</button>
         <button data-d="how">${I.help}<span>${t("howItWorks")}</span>${I.chevron}</button>
@@ -530,7 +555,7 @@
     $("#scrim").onclick = closeDrawer;
     d.querySelectorAll("[data-d]").forEach((b) => (b.onclick = () => {
       const k = b.dataset.d; closeDrawer();
-      if (k === "history") showHistory(); if (k === "wallet") G.UI.choosePayment(st.user); if (k === "pricing") showPricing(); if (k === "how") showHow(); if (k === "terms" || k === "privacy") showLegal(k);
+      if (k === "history") showHistory(); if (k === "milestones") showMilestones(); if (k === "wallet") G.UI.choosePayment(st.user); if (k === "pricing") showPricing(); if (k === "how") showHow(); if (k === "terms" || k === "privacy") showLegal(k);
       if (k === "signout") { G.Session.clear(); G.Sync?.signOut(); st.user = null; $("#app").hidden = true; showAuth(); }
     }));
     d.querySelectorAll("[data-seg]").forEach((g) => g.querySelectorAll("button").forEach((b) => (b.onclick = () => {

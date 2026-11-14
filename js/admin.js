@@ -475,7 +475,7 @@
   }
   function boot() {
     document.querySelector(".adm").hidden = false;
-    if (!G.Store.get().seeded && !G.Store.get().rides.length) G.Sim.seedHistory();
+    if (!G.Store.get().seeded) G.Sim.seedHistory(); // example rides for today, once (the server remembers it was done)
     shell(); clockTick(); render(true);
     if (G.Store.get().sim.running) { G.Sim.start(); shell(); }
     setInterval(clockTick, 500);
