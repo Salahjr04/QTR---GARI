@@ -25,6 +25,15 @@ Ride lifecycle (each step is logged as the API call it stands for, see Admin →
 
 Simulation clock: `now = baseSim + (realNow − baseReal) × speed`, stored in localStorage so the rider app and the admin share it. Speed ×30 means one real second is thirty simulated seconds.
 
+## Full stack (this repository, `backend/`)
+```
+[rider phone]  index.html ─┐                                   ┌─ rides, bikes, users, settings, API log
+[rider phone]  index.html ─┼─ js/sync.js ──HTTPS──▶ backend/server.js ──▶ db.json
+[admin laptop] admin.html ─┘   push changes,         REST API + website,
+                               pull every 1.5 s      roles, server-side pricing
+```
+Each page keeps working from its local copy and `js/sync.js` shares it: riders send and receive only their own rides, the admin receives everything, and the server recalculates every finished ride's total. Without a backend the same pages run on localStorage alone.
+
 ## Production (proposed)
 ```
 [iOS / Android / web app] ──HTTPS──▶ [API server] ──▶ [PostgreSQL + PostGIS]

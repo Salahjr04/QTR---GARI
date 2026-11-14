@@ -1,0 +1,17 @@
+# Render blueprint: one free web service that runs the Gari backend and serves the website over HTTPS.
+# Render > New > Blueprint > pick this repository and branch. You are asked for ADMIN_PASSWORD once.
+services:
+  - type: web
+    name: gari
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node backend/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: ADMIN_PASSWORD   # the admin dashboard password; you type it in Render, it is never in the repository
+        sync: false
+      - key: GARI_SECRET      # signs sign-in tokens; Render makes a random one
+        generateValue: true
+      - key: NODE_VERSION
+        value: "22"

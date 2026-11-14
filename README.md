@@ -7,7 +7,8 @@ Gari is an AI-powered bike-sharing platform in Kuwait, offering convenient, affo
 | | Link |
 |---|---|
 | Rider app (تطبيق المستخدم) | `index.html` |
-| Admin dashboard + simulator (لوحة الإدارة والمحاكي) | `admin.html` |
+| Admin dashboard + simulator (لوحة الإدارة والمحاكي), separate sign-in | `admin.html` |
+| Backend API (الباك‌إند) | [`backend/`](backend/) |
 | Sample photos to upload (صور تجريبية) | [`test-photos/`](test-photos/) |
 
 > **للفريق ولأي AI يكمّل الشغل:** اقرأوا [`CLAUDE.md`](CLAUDE.md) أول. التطبيق ٨٠٪ خالص: عدّلوا وحسّنوا وضيفوا ميزات، بس لا تمسحون ميزة ولا تغيّرون الثيم أو الألوان أو الأسعار.
@@ -48,13 +49,23 @@ Gari is an AI-powered bike-sharing platform in Kuwait, offering convenient, affo
 ## In English
 
 ### Run it
-Static files, no build step.
+No build step and no npm packages.
 ```bash
-python3 -m http.server 8000
+ADMIN_PASSWORD=choose-one node backend/server.js
 # rider app:  http://localhost:8000/
-# admin:      http://localhost:8000/admin.html
+# admin:      http://localhost:8000/admin.html   (asks for ADMIN_PASSWORD)
 ```
-GitHub Pages works too: Settings → Pages → deploy from this branch, folder `/ (root)`.
+This is the full stack: every phone and the admin share the same rides through the API, so a ride finished on a phone shows up on the admin dashboard within seconds.
+
+**Public HTTPS link (for judges):** deploy with `render.yaml` (Render → New → Blueprint) or the `Dockerfile`. Details and the API are in [`backend/README.md`](backend/README.md).
+
+**Static only:** `python3 -m http.server 8000` or GitHub Pages also works. Then there is no server, data stays in each browser, and the admin demo password is `gari-admin`.
+
+### What's new
+- Backend API with accounts, roles, server-side pricing and live sync (`backend/server.js`, `js/sync.js`).
+- Admin is a separate page with its own sign-in; the rider app no longer links to it.
+- Distance milestones at 2, 5, 10, 25, 50 and 100 km.
+- Photo check recognises real bicycles (on-device detector) and is lenient by default: only a photo with no bicycle is refused.
 
 ### Pricing (editable in Admin → Settings)
 | | KD |
@@ -68,6 +79,7 @@ The meter stops only when the end-of-ride photo passes:
 - **On-device (default, offline):** brightness and sharpness; a bicycle found either as two similar wheels side by side (gradient Hough circle search) or by a pretrained object detector (COCO-SSD, trained on real photos that include bicycles; it also works on angled phone photos where the wheels look like ellipses); the green Gari smart lock found as a colour blob; the lock must sit on a wheel. The detector (TensorFlow.js + model, ~19 MB) lives in `vendor/`, loads when the rider locks the bike, and never sends the photo anywhere. If it can't load, the wheel search alone decides.
 - **Claude vision (optional):** add an Anthropic API key in Admin → Settings and the photo is also sent to Claude, which answers in a fixed JSON shape (bicycle? lock visible? lock on wheel? upright? blocking the way?). The key stays in that browser; in production this call belongs on a server.
 - Always combined with the lock state reported by the smart lock and whether the GPS position is inside a parking zone (80 m).
+- **Lenient by default (prototype):** only a photo with no bicycle is refused; a dark or blurry photo, a missing lock or a lock off the wheel are shown as warnings and the ride is accepted under review. Admin → Settings → Photo check strictness turns every rule back into a hard rule.
 
 ### The AI forecast (`js/forecast.js`)
 Demand per parking zone = hourly pattern (workdays vs Friday/Saturday, Kuwait time) × zone character (parks in the evening, squares and the waterfront at weekends) × weather × events × a correction learned from the rides seen in the last 3 hours. Street congestion uses a rush-hour profile weighted towards downtown. The admin simulator spawns riders from this same forecast.
@@ -92,8 +104,10 @@ Demand per parking zone = hourly pattern (workdays vs Friday/Saturday, Kuwait ti
 | `docs/SECURE_API.md` | How to run Claude photo checks without exposing the API key |
 | `docs/ROADMAP.md` | Next steps (e.g. separating admin from rider) |
 | `server/` | Cloudflare Worker that keeps the API key secret |
+| `backend/`, `js/sync.js` | Backend API + website server, and the browser code that talks to it |
+| `render.yaml`, `Dockerfile`, `package.json` | Deployment |
 
 ### Prototype limits
 - Sign-in with Apple/Google, the Bluetooth lock and the payments (KNET, Visa, Apple Pay) are simulated. Nothing is charged.
-- Data lives in the browser's localStorage, so the admin page sees rides from the same browser only.
+- Without the backend, data lives in the browser's localStorage and the admin page sees rides from the same browser only. With the backend it is shared, in one JSON file (not a production database yet).
 - Inside the app, GPS movement is simulated along real streets. Long-press the map to move "you".
