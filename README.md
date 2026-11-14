@@ -10,6 +10,10 @@ Gari is an AI-powered bike-sharing platform in Kuwait, offering convenient, affo
 | Admin dashboard + simulator (لوحة الإدارة والمحاكي) | `admin.html` |
 | Sample photos to upload (صور تجريبية) | [`test-photos/`](test-photos/) |
 
+> **للفريق ولأي AI يكمّل الشغل:** اقرأوا [`CLAUDE.md`](CLAUDE.md) أول. التطبيق ٨٠٪ خالص: عدّلوا وحسّنوا وضيفوا ميزات، بس لا تمسحون ميزة ولا تغيّرون الثيم أو الألوان أو الأسعار.
+>
+> **Team & any AI continuing this work:** read [`CLAUDE.md`](CLAUDE.md) first.
+
 ---
 
 ## بالعربي
