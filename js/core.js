@@ -25,6 +25,7 @@ window.Gari = window.Gari || {};
     visionProxy: "",      // URL of the server proxy that holds the API key (recommended for a public site)
     claudeKey: "",
     claudeModel: "claude-opus-5-5",
+    photoStrict: false,   // prototype: a photo is refused only when there is no bicycle in it; true = every photo rule is hard
   };
   const KD = (v) => (Math.round(v * 1000) / 1000).toFixed(3);
 
@@ -136,8 +137,15 @@ window.Gari = window.Gari || {};
     set(u) { try { localStorage.setItem(SESSION_KEY, JSON.stringify(u)); } catch {} },
     clear() { try { localStorage.removeItem(SESSION_KEY); } catch {} },
   };
+  function deviceId() {
+    let d = null; try { d = localStorage.getItem("gari.device"); } catch {}
+    if (!d) { d = Math.random().toString(36).slice(2, 8); try { localStorage.setItem("gari.device", d); } catch {} }
+    return d;
+  }
   function signIn(provider, name, extra = {}) {
-    const id = provider === "guest" ? "guest" : `u_${provider}_${(name || "rider").toLowerCase().replace(/[^a-z0-9؀-ۿ]+/g, "").slice(0, 16) || "rider"}`;
+    const slug = (name || "rider").toLowerCase().replace(/[^a-z0-9؀-ۿ]+/g, "").slice(0, 16) || "rider";
+    // guest / Apple / Google sign-in is simulated, so those accounts belong to this device (two phones must not share one ride)
+    const id = provider === "password" ? `u_password_${slug}` : provider === "guest" ? `guest_${deviceId()}` : `u_${provider}_${slug}_${deviceId()}`;
     const user = { id, name: name || "Rider", provider, joinedAt: Clock.now(), ...extra };
     Store.update((db) => { db.users[id] = { ...(db.users[id] || {}), ...user, payment: db.users[id]?.payment || null }; Store.log("POST", `/auth/${provider}`, { id, name: user.name }); });
     Session.set({ id, name: user.name, provider });

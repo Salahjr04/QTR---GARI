@@ -17,7 +17,7 @@ const fs = require("fs"), path = require("path");
   }
   // check every photo with the same analyzer the app uses
   await page.addScriptTag({ path: path.join(root, "js/vision.js") });
-  const settings = { parkRadiusM: 80, visionEngine: "device", claudeKey: "" };
+  const settings = { parkRadiusM: 80, visionEngine: "device", claudeKey: "", photoStrict: true }; // strict rules, so every photo rule stays tested
   for (const n of names) {
     const b64 = fs.readFileSync(path.join(out, n + ".jpg")).toString("base64");
     const r = await page.evaluate(async ([b64, settings]) => {

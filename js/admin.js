@@ -24,7 +24,8 @@
   // ------------------------------------------------------------------ strings
   const A = {
     ar: { console: "لوحة التحكم", overview: "نظرة عامة", map: "الخريطة الحية", forecast: "توقعات الذكاء الاصطناعي", rides: "الرحلات", fleet: "الدراجات", sim: "المحاكي", settings: "الإعدادات", api: "سجل الـ API",
-      riderApp: "تطبيق المستخدم", run: "شغّل المحاكاة", pause: "وقّف المحاكاة", running: "شغالة",
+      riderApp: "تطبيق المستخدم", adminSignIn: "دخول الإدارة", adminOnly: "هذي الصفحة لفريق قاري بس", adminPass: "كلمة سر الإدارة", enter: "دخول", wrongPass: "كلمة السر غلط", tooMany: "محاولات وايد، جرب بعد دقيقة", netErr: "ما قدرنا نتصل بالسيرفر",
+      demoHint: "نسخة تجريبية بدون سيرفر: كلمة السر gari-admin والبيانات بهذا المتصفح بس", apiOn: "متصل بالسيرفر", apiOff: "تجريبي (بدون سيرفر)", signOut: "خروج", run: "شغّل المحاكاة", pause: "وقّف المحاكاة", running: "شغالة",
       revenue: "الإيراد اليوم", ridesToday: "رحلات اليوم", ridingNow: "يركبون الحين", available: "دراجات متاحة", avgRide: "متوسط الرحلة", passRate: "صور مقبولة من أول مرة", missed: "طلبات ضاعت (ما في دراجة)",
       perHour: "رحلات بالساعة: الفعلي مقابل توقع الذكاء الاصطناعي", actual: "الفعلي", predicted: "المتوقع", hour: "الساعة",
       activity: "آخر الأحداث", payMix: "طرق الدفع", noData: "ما في بيانات للحين. شغّل المحاكاة أو سوِّ رحلة من تطبيق المستخدم.",
@@ -43,12 +44,13 @@
       demandLvl: "مستوى الطلب", weather: "الطقس", event: "فعالية", failRate: "نسبة الصور المرفوضة", offZone: "نسبة الركن برا المنطقة", maxRiders: "أقصى عدد راكبين",
       activeRiders: "راكبين بالمحاكاة الحين", seed: "ولّد رحلات اليوم (أمثلة)", seeded: "انضافت {n} رحلة مثال", ev_seed: "انضافت رحلات أمثلة لليوم", simLog: "سجل المحاكاة", reset: "مسح كل البيانات", resetQ: "متأكد؟ بتنمسح كل الرحلات وترجع الدراجات لأماكنها.",
       pricing: "الأسعار", unlockFee: "فتح القفل (د.ك)", reserveFee: "حجز دراجة بعيدة (د.ك)", blockFee: "كل فترة (د.ك)", blockMin: "طول الفترة (دقيقة)", nearM: "مسافة «قريبة» بدون حجز (م)", holdMin: "مدة الحجز (دقيقة)", parkRadius: "نصف قطر منطقة الركن (م)",
-      vision: "تحليل الصورة بالذكاء الاصطناعي", visionEngine: "المحرك", e_auto: "تلقائي (Claude إذا في مفتاح)", e_device: "على الجهاز فقط", e_claude: "Claude",
+      vision: "تحليل الصورة بالذكاء الاصطناعي", photoMode: "صرامة فحص الصورة", pm_soft: "مرن (يرفض بس إذا ما في دراجة)", pm_strict: "صارم (كل الشروط إلزامية)", visionEngine: "المحرك", e_auto: "تلقائي (Claude إذا في مفتاح)", e_device: "على الجهاز فقط", e_claude: "Claude",
       proxyUrl: "رابط سيرفر التحليل (الطريقة الآمنة)", proxyHint: "للموقع العام: المفتاح يكون بالسيرفر بس، والموقع يرسل الصورة. الشرح في docs/SECURE_API.md", apiKey: "مفتاح Anthropic API (اختياري)", apiKeyHint: "ينحفظ بهذا المتصفح بس. للنسخة التجريبية فقط؛ بالنسخة الحقيقية يكون على السيرفر.", model: "الموديل", save: "حفظ", saved: "انحفظ",
       ev_unlock: "{name} فتح {bike}", ev_lock: "قفل الدراجة", ev_photo_pass: "صورة مقبولة", ev_photo_fail: "صورة مرفوضة ({r})", ev_photo_review: "صورة للمراجعة", ev_done: "رحلة انتهت", ev_missed: "طلب ضاع بـ {zone}", ev_start: "بدأت المحاكاة", ev_stop: "وقفت المحاكاة",
       layers: "الطبقات", traffic: "زحمة الشوارع", demand: "الطلب المتوقع", legendBikes: "متاحة · محجوزة · مستخدمة", min: "د", km: "كم", openRider: "افتح تطبيق المستخدم", close: "إغلاق", noPhoto: "رحلة محاكاة (بدون صورة)" },
     en: { console: "Console", overview: "Overview", map: "Live map", forecast: "AI forecast", rides: "Rides", fleet: "Fleet", sim: "Simulator", settings: "Settings", api: "API log",
-      riderApp: "Rider app", run: "Run simulation", pause: "Pause simulation", running: "Running",
+      riderApp: "Rider app", adminSignIn: "Admin sign-in", adminOnly: "This page is for the Gari team only", adminPass: "Admin password", enter: "Sign in", wrongPass: "Wrong password", tooMany: "Too many tries, wait a minute", netErr: "Couldn't reach the server",
+      demoHint: "Demo without a server: the password is gari-admin and data stays in this browser", apiOn: "Connected to server", apiOff: "Demo (no server)", signOut: "Sign out", run: "Run simulation", pause: "Pause simulation", running: "Running",
       revenue: "Revenue today", ridesToday: "Rides today", ridingNow: "Riding now", available: "Bikes available", avgRide: "Average ride", passRate: "Photos passed first try", missed: "Missed demand (no bike)",
       perHour: "Rides per hour: actual vs AI forecast", actual: "Actual", predicted: "Forecast", hour: "Hour",
       activity: "Latest activity", payMix: "Payment methods", noData: "No data yet. Run the simulator or take a ride in the rider app.",
@@ -67,7 +69,7 @@
       demandLvl: "Demand level", weather: "Weather", event: "Event", failRate: "Rejected photos", offZone: "Parking outside zones", maxRiders: "Max riders",
       activeRiders: "Simulated riders now", seed: "Generate today's example rides", seeded: "Added {n} example rides", ev_seed: "Example rides added for today", simLog: "Simulation log", reset: "Reset all data", resetQ: "Sure? All rides are deleted and bikes go back to their zones.",
       pricing: "Pricing", unlockFee: "Unlock (KD)", reserveFee: "Book a far bike (KD)", blockFee: "Per block (KD)", blockMin: "Block length (min)", nearM: "“Near” distance, no booking (m)", holdMin: "Booking hold (min)", parkRadius: "Parking zone radius (m)",
-      vision: "AI photo check", visionEngine: "Engine", e_auto: "Auto (Claude when a key is set)", e_device: "On-device only", e_claude: "Claude",
+      vision: "AI photo check", photoMode: "Photo check strictness", pm_soft: "Lenient (refuse only when there is no bicycle)", pm_strict: "Strict (every rule is required)", visionEngine: "Engine", e_auto: "Auto (Claude when a key is set)", e_device: "On-device only", e_claude: "Claude",
       proxyUrl: "Vision server URL (the secure way)", proxyHint: "For a public site: the key lives only on the server and the site sends just the photo. See docs/SECURE_API.md", apiKey: "Anthropic API key (optional)", apiKeyHint: "Stored in this browser only. Prototype only; in production this call runs on the server.", model: "Model", save: "Save", saved: "Saved",
       ev_unlock: "{name} unlocked {bike}", ev_lock: "Bike locked", ev_photo_pass: "Photo passed", ev_photo_fail: "Photo rejected ({r})", ev_photo_review: "Photo sent to review", ev_done: "Ride completed", ev_missed: "Missed demand at {zone}", ev_start: "Simulation started", ev_stop: "Simulation paused",
       layers: "Layers", traffic: "Street traffic", demand: "Expected demand", legendBikes: "Available · Reserved · In use", min: "min", km: "km", openRider: "Open rider app", close: "Close", noPhoto: "Simulated ride (no photo)" },
@@ -98,6 +100,8 @@
     $("#runBtn").innerHTML = `${run ? IC.pause : IC.play}<span>${run ? a("pause") : a("run")}</span>`;
     $("#runBtn").onclick = () => { run ? G.Sim.stop() : G.Sim.start(); shell(); if (view === "sim") render(true); };
     $("#title").textContent = a(view);
+    const on = G.Sync?.isOnline(); $("#apiChip").className = "chip " + (on ? "good" : ""); $("#apiChip").textContent = a(on ? "apiOn" : "apiOff");
+    $("#outBtn").textContent = a("signOut"); $("#outBtn").onclick = () => { G.Sync?.signOut(); try { sessionStorage.removeItem("gari.admin.demo"); } catch {} location.reload(); };
   }
   function go(v) { view = v; history.replaceState(null, "", "#" + v); shell(); render(true); }
   function clockTick() {
@@ -385,7 +389,7 @@
     $("#mx").onchange = (e) => setOpt({ maxRiders: +e.target.value });
     $("#simRun").onclick = () => { G.Sim.running() ? G.Sim.stop() : G.Sim.start(); shell(); render(true); };
     $("#seed").onclick = () => { const n = G.Sim.seedHistory(); flash(a("seeded", { n })); render(true); };
-    $("#reset").onclick = () => { if (confirm(a("resetQ"))) { G.Sim.stop(); G.Store.reset(); G.Sim.log.length = 0; shell(); render(true); } };
+    $("#reset").onclick = async () => { if (confirm(a("resetQ"))) { G.Sim.stop(); try { await G.Sync?.resetAll(); } catch {} G.Store.reset(); G.Sim.log.length = 0; shell(); render(true); G.Sync?.now(); } };
     simLive();
   };
   function simLive() {
@@ -403,6 +407,7 @@
         </section>
         <section class="card"><div class="card-head"><h2>${a("vision")}</h2></div>
           <label class="frow"><span>${a("visionEngine")}</span><select data-k="visionEngine">${["auto", "device", "claude"].map((v) => `<option value="${v}" ${s.visionEngine === v ? "selected" : ""}>${a("e_" + v)}</option>`).join("")}</select></label>
+          <label class="frow"><span>${a("photoMode")}</span><select data-k="photoStrict"><option value="" ${s.photoStrict ? "" : "selected"}>${a("pm_soft")}</option><option value="1" ${s.photoStrict ? "selected" : ""}>${a("pm_strict")}</option></select></label>
           <label class="frow"><span>${a("proxyUrl")}</span><input data-k="visionProxy" value="${esc(s.visionProxy || "")}" placeholder="https://gari-vision-proxy.….workers.dev" dir="ltr" autocomplete="off"></label>
           <p class="muted small">${a("proxyHint")}</p>
           <label class="frow"><span>${a("apiKey")}</span><input type="password" data-k="claudeKey" value="${esc(s.claudeKey)}" placeholder="sk-ant-…" dir="ltr" autocomplete="off"></label>
@@ -437,11 +442,47 @@
     if (view === "rides" || view === "fleet" || (view === "forecast" && now - lastSlow > 10000)) { lastSlow = now; const sc = el.scrollTop; V[view](el); el.scrollTop = sc; }
   }
 
-  if (!G.Store.get().seeded && !G.Store.get().rides.length) G.Sim.seedHistory();
-  shell(); clockTick(); render(true);
-  if (G.Store.get().sim.running) { G.Sim.start(); shell(); }
-  setInterval(clockTick, 500);
-  G.on((w) => { if (w === "clock") { clockTick(); shell(); } if (w === "live") drawLive(); if (w === "db") render(false); });
-  G.Sim.on(() => { if (view === "sim") simLive(); });
-  setInterval(() => render(false), 3000);
+  // ------------------------------------------------------------------ sign-in gate (admin is separate from the rider app)
+  // With a backend the password is checked by the server and data loads only after that.
+  // Without one (static demo) the gate is a simple demo password and data stays in this browser.
+  async function gate() {
+    const online = await Promise.race([G.Sync ? G.Sync.checked : false, new Promise((r) => setTimeout(() => r(false), 3000))]);
+    const demoOk = () => { try { return sessionStorage.getItem("gari.admin.demo") === "1"; } catch { return false; } };
+    if (online ? G.Sync.hasToken() : demoOk()) { if (online) await Promise.race([G.Sync.ready, new Promise((r) => setTimeout(r, 6000))]); return; }
+    await new Promise((done) => {
+      const el = document.createElement("div"); el.className = "gate";
+      const paint = () => {
+        el.innerHTML = `<form class="gate-card" novalidate><img src="assets/logo.png" alt="Gari" class="logo-img light-only"><img src="assets/logo-light.png" alt="Gari" class="logo-img dark-only">
+          <h1>${a("adminSignIn")}</h1><p class="muted">${a("adminOnly")}</p>
+          <label class="frow"><span>${a("adminPass")}</span><input type="password" id="gatePass" autocomplete="current-password" dir="ltr"></label>
+          <p class="gate-err" id="gateErr" role="alert"></p>
+          <button class="btn btn-primary btn-block" type="submit">${a("enter")}</button>
+          ${online ? "" : `<p class="muted small">${a("demoHint")}</p>`}
+          <button type="button" class="mini-btn" id="gateLang">${G.getLang() === "ar" ? "English" : "العربية"}</button></form>`;
+        el.querySelector("#gateLang").onclick = () => { G.setLang(G.getLang() === "ar" ? "en" : "ar"); paint(); };
+        el.querySelector("form").onsubmit = async (e) => {
+          e.preventDefault(); const pw = el.querySelector("#gatePass").value, err = el.querySelector("#gateErr"), btn = el.querySelector("button[type=submit]");
+          if (!online) { if (pw === "gari-admin") { try { sessionStorage.setItem("gari.admin.demo", "1"); } catch {} el.remove(); done(); } else err.textContent = a("wrongPass"); return; }
+          btn.disabled = true;
+          try { await G.Sync.adminLogin(pw); el.remove(); done(); }
+          catch (x) { err.textContent = a(x.code === "wrong_password" ? "wrongPass" : x.code === "rate_limited" ? "tooMany" : "netErr"); }
+          finally { btn.disabled = false; }
+        };
+        el.querySelector("#gatePass").focus();
+      };
+      document.body.appendChild(el); paint();
+    });
+  }
+  function boot() {
+    document.querySelector(".adm").hidden = false;
+    if (!G.Store.get().seeded && !G.Store.get().rides.length) G.Sim.seedHistory();
+    shell(); clockTick(); render(true);
+    if (G.Store.get().sim.running) { G.Sim.start(); shell(); }
+    setInterval(clockTick, 500);
+    G.on((w) => { if (w === "clock") { clockTick(); shell(); } if (w === "live") drawLive(); if (w === "db") render(false); });
+    G.Sim.on(() => { if (view === "sim") simLive(); });
+    setInterval(() => render(false), 3000);
+    G.Sync?.now();
+  }
+  gate().then(boot);
 })();

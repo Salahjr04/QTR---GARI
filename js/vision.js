@@ -207,19 +207,32 @@ window.Gari = window.Gari || {};
     let onWheel = false;
     if (lock.found && bike.found) onWheel = bike.wheels.some((wh) => Math.hypot(lock.cx - wh.x, (lock.cy - wh.y) * aspect) < wh.r * 1.35);
 
+    // Prototype mode (default): the photo is only refused when there is no bicycle in it at all.
+    // Everything else about the picture (dark, blurry, lock not seen, lock off the wheel) is shown as a
+    // warning and the ride is accepted "under review". Admin > Settings > strict photo check turns the
+    // hard rules back on.
+    const strict = !!settings.photoStrict;
+    const soft = (bad) => (bad ? (strict ? "fail" : "warn") : "pass");
     const checks = [];
     const add = (id, status, detail) => checks.push({ id, status, detail });
-    add("quality", q.tooDark || q.tooBright || q.blurry ? "fail" : "pass", q.tooDark ? "dark" : q.tooBright ? "bright" : q.blurry ? "blurry" : "ok");
-    const qOk = checks[0].status === "pass";
+    add("quality", soft(q.tooDark || q.tooBright || q.blurry), q.tooDark ? "dark" : q.tooBright ? "bright" : q.blurry ? "blurry" : "ok");
+    const qOk = !(q.tooDark || q.tooBright || q.blurry);
     if (ai) {
       add("bike", ai.is_bicycle ? "pass" : "fail", ai.is_bicycle ? "ok" : "none");
-      add("lock", ai.smart_lock_visible ? "pass" : "fail", ai.smart_lock_visible ? "ok" : "none");
-      add("onwheel", ai.lock_on_wheel ? "pass" : "fail", ai.lock_on_wheel ? "ok" : "loose");
+      add("lock", soft(!ai.smart_lock_visible), ai.smart_lock_visible ? "ok" : "none");
+      add("onwheel", soft(!ai.lock_on_wheel), ai.lock_on_wheel ? "ok" : "loose");
       add("upright", ai.bike_upright && !ai.blocking_path ? "pass" : "warn", ai.blocking_path ? "blocking" : ai.bike_upright ? "ok" : "fallen");
-    } else {
+    } else if (strict) {
       add("bike", !qOk ? "skip" : bike.found ? "pass" : "warn", bike.found ? "ok" : "unsure");
       add("lock", !qOk ? "skip" : lock.found ? "pass" : "fail", lock.found ? "ok" : "none");
       add("onwheel", !qOk || !lock.found ? "skip" : !bike.found ? "warn" : onWheel ? "pass" : "fail", onWheel ? "ok" : bike.found ? "loose" : "unsure");
+    } else {
+      // no bicycle at all = the detector ran and saw none (score under 0.3) and the wheel search found none.
+      // If the detector could not run, we cannot be sure, so the photo goes to review instead of being refused.
+      const anyBike = bike.found || det.score >= 0.3;
+      add("bike", anyBike ? "pass" : det.ran ? "fail" : "warn", anyBike ? "ok" : det.ran ? "none" : "unsure");
+      add("lock", !anyBike ? "skip" : lock.found ? "pass" : "warn", lock.found ? "ok" : "none");
+      add("onwheel", !anyBike || !lock.found ? "skip" : onWheel ? "pass" : "warn", onWheel ? "ok" : "loose");
     }
     add("lockstate", ctx.lockState === "locked" ? "pass" : "fail", ctx.lockState === "locked" ? "ok" : "open");
     let zone = null;
