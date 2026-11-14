@@ -13,6 +13,7 @@ window.Gari = window.Gari || {};
   const KX = 111320 * Math.cos((29.35 * Math.PI) / 180), KY = 110574;
   const dist = (i, j) => Math.hypot((lat[i] - lat[j]) * KY, (lng[i] - lng[j]) * KX);
 
+  const MAIN_PENALTY = 25;
   // edges -> adjacency (each entry: neighbour, edge index, forward?)
   const E = GR.edges, edges = [];
   const adj = Array.from({ length: NN }, () => []);
@@ -20,8 +21,11 @@ window.Gari = window.Gari || {};
     const a = E[p], b = E[p + 1], len = E[p + 2], flags = E[p + 3], n = E[p + 4];
     const mids = []; let la = Math.round(lat[a] * 1e5), lo = Math.round(lng[a] * 1e5);
     for (let k = 0; k < n; k++) { la += E[p + 5 + 2 * k]; lo += E[p + 6 + 2 * k]; mids.push([la / 1e5, lo / 1e5]); }
-    const cost = len * ((flags >> 1) / 10), oneway = flags & 1;
-    const id = edges.length; edges.push({ a, b, len, cost, mids });
+    // Main roads (OSM "primary") are not for bikes: they cost 25x, so a route only uses a short stretch
+    // of one to cross between blocks, never rides along it. Motorways/trunk roads are not in the graph at all.
+    const mult = (flags >> 1) / 10, main = mult >= 1.6, oneway = flags & 1;
+    const cost = len * (main ? MAIN_PENALTY : mult);
+    const id = edges.length; edges.push({ a, b, len, cost, mids, main });
     adj[a].push(b, id, 1);
     adj[b].push(a, id, oneway ? 0 : 2); // against a one-way: allowed (walk the bike) but costs 4x
     p += 5 + 2 * n;
@@ -30,21 +34,29 @@ window.Gari = window.Gari || {};
   // grid index for nearest-junction lookups
   const CELL = 0.004, grid = new Map();
   const key = (la, lo) => `${Math.floor(la / CELL)},${Math.floor(lo / CELL)}`;
+  const local = new Uint8Array(NN);
+  for (let i = 0; i < NN; i++) for (let k = 0; k < adj[i].length; k += 3) if (!edges[adj[i][k + 1]].main) { local[i] = 1; break; }
   for (let i = 0; i < NN; i++) { const k = key(lat[i], lng[i]); (grid.get(k) || grid.set(k, []).get(k)).push(i); }
+  // Snap to the nearest junction on an internal street; fall back to any road only when no internal
+  // street is within 60 m (e.g. waterfront spots on the Gulf Road), so there are no long straight "jumps".
   function nearestNode(p) {
-    let best = -1, bd = Infinity;
-    for (let r = 0; r < 6 && best < 0; r++) {
-      const cy = Math.floor(p.lat / CELL), cx = Math.floor(p.lng / CELL);
+    let bl = -1, dl = Infinity, ba = -1, da = Infinity;
+    const cy = Math.floor(p.lat / CELL), cx = Math.floor(p.lng / CELL);
+    for (let r = 0; r < 6 && (bl < 0 || r < 2); r++) {
       for (let y = cy - r; y <= cy + r; y++) for (let x = cx - r; x <= cx + r; x++) {
+        if (r && Math.max(Math.abs(y - cy), Math.abs(x - cx)) !== r) continue;
         for (const i of grid.get(`${y},${x}`) || []) {
           const d = Math.hypot((lat[i] - p.lat) * KY, (lng[i] - p.lng) * KX);
-          if (d < bd) { bd = d; best = i; }
+          if (d < da) { da = d; ba = i; }
+          if (local[i] && d < dl) { dl = d; bl = i; }
         }
       }
     }
+    const best = bl >= 0 && dl <= Math.max(60, da + 25) ? bl : ba, bd = best === bl ? dl : da;
     return best < 0 ? null : { i: best, d: bd, lat: lat[best], lng: lng[best] };
   }
 
+  let mainM = 0;
   // binary heap A*
   function astar(s, t) {
     const g = new Float64Array(NN).fill(Infinity), from = new Int32Array(NN).fill(-1), via = new Int32Array(NN).fill(-1), fwd = new Int8Array(NN);
@@ -61,9 +73,10 @@ window.Gari = window.Gari || {};
       }
     }
     if (from[t] < 0 && s !== t) return null;
-    const pts = [[lat[t], lng[t]]];
+    const pts = [[lat[t], lng[t]]]; mainM = 0;
     for (let v = t; v !== s; v = from[v]) {
-      const e = edges[via[v]], mids = fwd[v] ? e.mids.slice().reverse() : e.mids;
+      const e = edges[via[v]]; if (e.main) mainM += e.len;
+      const mids = fwd[v] ? e.mids.slice().reverse() : e.mids;
       for (const m of mids) pts.push(m);
       pts.push([lat[from[v]], lng[from[v]]]);
     }
@@ -79,7 +92,7 @@ window.Gari = window.Gari || {};
     if (!mid) return null;
     const points = [[a.lat, a.lng], ...mid, [b.lat, b.lng]];
     let meters = 0; for (let i = 1; i < points.length; i++) meters += M(points[i - 1], points[i]);
-    return { points, meters };
+    return { points, meters, mainM };
   }
   // a point `m` metres along a polyline (used to move simulated riders)
   function along(points, m) {

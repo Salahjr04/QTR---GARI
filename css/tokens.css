@@ -169,3 +169,9 @@ button { cursor: pointer; }
   text-shadow: 0 0 3px var(--land), 0 0 3px var(--land), 0 0 6px var(--land); }
 .hide-areas .area-label { display: none; }
 .leaflet-control-zoom { display: none; }
+
+/* no text selection on buttons, tabs, chips, links or labels (inputs and normal text stay selectable) */
+button, .btn, .chip, .fab, .seg, .pill-btn, .skip, a, label, nav, .hold-btn, .dest-btn, .pm-row, .side-nav, .speed, .run-btn, .leaflet-container {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+input, textarea, select { -webkit-user-select: text; user-select: text; }

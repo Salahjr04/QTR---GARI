@@ -49,14 +49,20 @@ window.Gari = window.Gari || {};
     const bikes = Object.values(db.bikes).filter((b) => b.status === "available" && G.distM(b, spot) <= db.settings.parkRadiusM * 1.6);
     if (!bikes.length) { emit({ k: "missed", spot: spot.id }); return; } // demand with no bike = lost ride
     const bike = pick(bikes);
-    // destination: another zone, preferring 1–4 km away
+    // destination: another zone, preferring short local trips (about 0.8–2.5 km); a route may use main
+    // roads only to cross between blocks (≤ 30% of its length), otherwise try another destination
     const cands = G.SPOTS.filter((s) => s.id !== spot.id).map((s) => ({ s, d: G.distM(spot, s) }));
-    const w = cands.map((c) => Math.exp(-Math.abs(c.d - 2200) / 1500));
-    let x = Math.random() * w.reduce((a, b) => a + b, 0), dest = cands[0].s;
-    for (let i = 0; i < cands.length; i++) { x -= w[i]; if (x <= 0) { dest = cands[i].s; break; } }
+    const w = cands.map((c) => Math.exp(-Math.abs(c.d - 1500) / 900));
+    let dest = null, rt = null, end = null;
     const offZone = Math.random() < options().offZoneRate;
-    const end = offZone ? { lat: dest.lat + 0.0016, lng: dest.lng + 0.0012 } : { lat: dest.lat + (Math.random() - 0.5) * 0.0005, lng: dest.lng + (Math.random() - 0.5) * 0.0005 };
-    const rt = G.route ? G.route(bike, end) : null;
+    for (let tries = 0; tries < 4 && !rt; tries++) {
+      let x = Math.random() * w.reduce((a, b) => a + b, 0), d = cands[0].s;
+      for (let i = 0; i < cands.length; i++) { x -= w[i]; if (x <= 0) { d = cands[i].s; break; } }
+      let e = { lat: d.lat + (Math.random() - 0.5) * 0.0004, lng: d.lng + (Math.random() - 0.5) * 0.0004 };
+      if (offZone) { const n = G.nearestNode({ lat: d.lat + 0.0016, lng: d.lng + 0.0012 }); if (n) e = { lat: n.lat, lng: n.lng }; } // stops on a real street, outside the zone
+      const r = G.route ? G.route(bike, e) : null;
+      if (r && r.mainM / Math.max(1, r.meters) <= 0.3) { dest = d; rt = r; end = e; }
+    }
     if (!rt) return;
     const name = pick(NAMES), id = "s_" + Math.random().toString(36).slice(2, 9), userId = "sim_" + name;
     G.Store.update((db) => {
@@ -149,8 +155,9 @@ window.Gari = window.Gari || {};
     }
     G.Store.update((db) => {
       for (const { t, s } of out) {
-        const cands = G.SPOTS.filter((x) => x.id !== s.id), dest = cands[Math.floor(Math.random() * cands.length)];
-        const rt = G.route(s, dest); if (!rt) continue;
+        const cands = G.SPOTS.filter((x) => x.id !== s.id && G.distM(s, x) < 3000), dest = cands[Math.floor(Math.random() * cands.length)];
+        if (!dest) continue;
+        const rt = G.route(s, dest); if (!rt || rt.mainM / Math.max(1, rt.meters) > 0.3) continue;
         const speed = 3.4 + Math.random() * 2, sec = Math.round(rt.meters / speed + 60 + Math.random() * 90), f = G.rideFee(db.settings, sec);
         const route = rt.points.filter((_, i) => i % 4 === 0).map((p, i, arr) => [+p[0].toFixed(5), +p[1].toFixed(5), Math.round(t + (sec * 1000 * i) / arr.length)]);
         const fail = Math.random() < 0.12, reserved = Math.random() < 0.3, name = pick(NAMES);
