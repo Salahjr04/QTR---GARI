@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Gari</title>
+  <meta name="description" content="Gari: bike sharing in Kuwait's Capital Governorate">
+  <meta name="theme-color" content="#049B6E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="icon" href="assets/icon-64.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="splash" id="splash"><img src="assets/logo-white.png" alt="Gari" class="splash-logo"><div class="splash-bar"><i></i></div></div>
+
+  <!-- Sign in -->
+  <section class="auth" id="auth" hidden>
+    <div class="auth-top">
+      <button class="pill-btn" id="authLang" data-act="lang"></button>
+      <button class="pill-btn icon" id="authTheme" data-act="theme" aria-label="theme"></button>
+    </div>
+    <div class="auth-hero">
+      <img src="assets/logo.png" alt="Gari" class="auth-logo light-only logo-img">
+      <img src="assets/logo-light.png" alt="Gari" class="auth-logo dark-only logo-img">
+      <p class="auth-tag" data-t="tagline"></p>
+    </div>
+    <div class="auth-card">
+      <button class="btn btn-block sso apple" data-sso="apple"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M16.4 12.6c0-2.4 2-3.6 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.6-1-2.6-4zM14 5.6c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg><span data-t="signApple"></span></button>
+      <button class="btn btn-block sso google" data-sso="google"><svg class="ico" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.6H2.1v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.7 14.1a6.6 6.6 0 0 1 0-4.2V7.1H2.1a11 11 0 0 0 0 9.8z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1A11 11 0 0 0 2.1 7.1l3.6 2.8C6.6 7.3 9.1 5.4 12 5.4z"/></svg><span data-t="signGoogle"></span></button>
+      <div class="divider"><span data-t="or"></span></div>
+      <form id="authForm" autocomplete="on" novalidate>
+        <label class="field"><span data-t="username"></span><input id="authUser" name="username" autocomplete="username" required></label>
+        <label class="field"><span data-t="password"></span><input id="authPass" name="password" type="password" autocomplete="current-password" required></label>
+        <p class="form-err" id="authErr" role="alert"></p>
+        <button class="btn btn-primary btn-block" type="submit" data-t="signIn"></button>
+        <p class="hint" data-t="createHint"></p>
+      </form>
+    </div>
+    <p class="terms" data-t="terms"></p>
+    <button class="skip" id="authSkip" data-t="skip"></button>
+  </section>
+
+  <!-- Rider app -->
+  <main class="app" id="app" hidden>
+    <div id="map" dir="ltr"></div>
+    <header class="topbar">
+      <button class="fab" id="menuBtn" aria-label="menu"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+      <div class="brand-pill"><img src="assets/logo.png" alt="Gari" class="logo-img light-only"><img src="assets/logo-light.png" alt="Gari" class="logo-img dark-only"></div>
+      <button class="fab" id="aiBtn" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></button>
+    </header>
+    <div class="sim-badge num" id="simBadge" hidden></div>
+    <div class="ai-card" id="aiCard" hidden></div>
+    <button class="fab locate" id="locateBtn" aria-label="locate"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></button>
+    <section class="sheet" id="sheet" aria-live="polite"><div class="grabber"></div><div id="sheetBody"></div></section>
+    <div class="toast" id="toast" role="status"></div>
+  </main>
+
+  <!-- Side menu -->
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="drawer" id="drawer" hidden></aside>
+  <!-- Modal -->
+  <div class="modal-wrap" id="modal" hidden><div class="modal" id="modalBody" role="dialog" aria-modal="true"></div></div>
+  <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/map/graph.js"></script>
+  <script src="js/map/route.js"></script>
+  <script src="js/map/streets.js"></script>
+  <script src="js/map/basemap.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/forecast.js"></script>
+  <script src="js/vision.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

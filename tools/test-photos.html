@@ -1,0 +1,108 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Gari test photo generator</title></head>
+<body style="margin:0;background:#222">
+<canvas id="c" width="1600" height="1200"></canvas>
+<script>
+/* Draws the sample end-of-ride photos in tools/../test-photos. Run: node tools/make_test_photos.js
+ * Each scene is procedurally painted (no real people or places), with film grain and vignette. */
+const W = 1600, H = 1200;
+const c = document.getElementById("c"), x = c.getContext("2d");
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+function sky(top, bottom, horizon) { const g = x.createLinearGradient(0, 0, 0, horizon); g.addColorStop(0, top); g.addColorStop(1, bottom); x.fillStyle = g; x.fillRect(0, 0, W, horizon); }
+function park(h) {
+  sky("#9ec7e6", "#e8eef0", h);
+  // distant palms and trees
+  for (let i = 0; i < 26; i++) { const tx = rnd() * W, th = 120 + rnd() * 160; x.fillStyle = `rgb(${50 + rnd() * 25},${92 + rnd() * 30},${48 + rnd() * 20})`; x.beginPath(); x.ellipse(tx, h - th * 0.55, 60 + rnd() * 60, th * 0.5, 0, 0, 7); x.fill(); }
+  for (let i = 0; i < 5; i++) { const tx = 120 + i * 340 + rnd() * 80; x.strokeStyle = "#7b6247"; x.lineWidth = 16; x.beginPath(); x.moveTo(tx, h); x.quadraticCurveTo(tx + 20, h - 200, tx + 8, h - 330); x.stroke();
+    x.fillStyle = "#3f6f37"; for (let k = 0; k < 7; k++) { x.save(); x.translate(tx + 8, h - 330); x.rotate(-1.4 + k * 0.45); x.beginPath(); x.ellipse(70, 0, 80, 14, 0, 0, 7); x.fill(); x.restore(); } }
+  // lawn band
+  const g = x.createLinearGradient(0, h, 0, h + 120); g.addColorStop(0, "#5f8f43"); g.addColorStop(1, "#77a24f"); x.fillStyle = g; x.fillRect(0, h, W, 120);
+  for (let i = 0; i < 2500; i++) { x.fillStyle = `rgba(${40 + rnd() * 60},${90 + rnd() * 60},${30 + rnd() * 30},.5)`; x.fillRect(rnd() * W, h + rnd() * 120, 2, 4 + rnd() * 6); }
+  pavement(h + 120, "#cbbfa8", "#b8ab92");
+}
+function street(h) {
+  sky("#f2c48d", "#f7e3c6", h);
+  // building facade
+  x.fillStyle = "#d9cdb8"; x.fillRect(0, 90, W, h - 90);
+  for (let r = 0; r < 3; r++) for (let k = 0; k < 9; k++) { x.fillStyle = "#6f7f86"; x.fillRect(60 + k * 175, 150 + r * 150, 110, 95); x.fillStyle = "rgba(255,255,255,.18)"; x.fillRect(64 + k * 175, 154 + r * 150, 50, 87); }
+  x.fillStyle = "#b9ab93"; x.fillRect(0, h - 40, W, 40);
+  pavement(h, "#bdb6ab", "#a59e93");
+  // kerb line
+  x.fillStyle = "#8f8a83"; x.fillRect(0, H - 70, W, 18);
+}
+function pavement(y0, a, b) {
+  x.fillStyle = a; x.fillRect(0, y0, W, H - y0);
+  x.strokeStyle = b; x.lineWidth = 3;
+  for (let yy = y0; yy < H; yy += 26 + (yy - y0) * 0.12) { x.beginPath(); x.moveTo(0, yy); x.lineTo(W, yy); x.stroke(); }
+  for (let i = -20; i < 40; i++) { x.beginPath(); x.moveTo(W / 2 + i * 60, y0); x.lineTo(W / 2 + i * 60 * 3.2, H); x.stroke(); }
+}
+function shadow(cx, cy, rx, ry, a = 0.35) { x.save(); x.filter = "blur(18px)"; x.fillStyle = `rgba(0,0,0,${a})`; x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill(); x.restore(); }
+
+function wheel(cx, cy, R) {
+  x.strokeStyle = "#151617"; x.lineWidth = 34; x.beginPath(); x.arc(cx, cy, R - 17, 0, 7); x.stroke();          // tyre
+  x.strokeStyle = "#2a2c2e"; x.lineWidth = 4; x.beginPath(); x.arc(cx, cy, R - 6, 0, 7); x.stroke();            // tread line
+  x.strokeStyle = "#c3c9cd"; x.lineWidth = 10; x.beginPath(); x.arc(cx, cy, R - 39, 0, 7); x.stroke();          // rim
+  x.strokeStyle = "rgba(150,158,164,.9)"; x.lineWidth = 2.2;
+  for (let i = 0; i < 32; i++) { const a = (i / 32) * Math.PI * 2; x.beginPath(); x.moveTo(cx + Math.cos(a + 0.2) * 14, cy + Math.sin(a + 0.2) * 14); x.lineTo(cx + Math.cos(a) * (R - 44), cy + Math.sin(a) * (R - 44)); x.stroke(); }
+  x.fillStyle = "#9aa2a8"; x.beginPath(); x.arc(cx, cy, 20, 0, 7); x.fill(); x.fillStyle = "#4b5155"; x.beginPath(); x.arc(cx, cy, 8, 0, 7); x.fill();
+}
+function tube(a, b, w, col = "#eef1f3") { x.lineCap = "round"; x.strokeStyle = "#5d666c"; x.lineWidth = w + 5; x.beginPath(); x.moveTo(...a); x.lineTo(...b); x.stroke(); x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(...a); x.lineTo(...b); x.stroke(); }
+
+function bike(o, withLock) {
+  const R = o.R, rx = o.x, fx = o.x + o.wb, y = o.y;
+  shadow((rx + fx) / 2, y + R - 6, (fx - rx) / 2 + R * 0.9, 28, 0.4);
+  wheel(rx, y, R); wheel(fx, y, R);
+  const bb = [rx + o.wb * 0.42, y + 12], seat = [rx + o.wb * 0.3, y - R * 1.15], head = [fx - o.wb * 0.18, y - R * 1.05];
+  // fenders
+  x.strokeStyle = "#2f3438"; x.lineWidth = 12; x.beginPath(); x.arc(rx, y, R + 10, Math.PI * 1.05, Math.PI * 1.75); x.stroke(); x.beginPath(); x.arc(fx, y, R + 10, Math.PI * 1.25, Math.PI * 1.95); x.stroke();
+  tube([rx, y], bb, 16); tube([rx, y], seat, 14); tube(bb, seat, 22); tube(bb, head, 24); tube([seat[0] + 10, seat[1] + 40], [head[0] - 8, head[1] + 30], 16); tube(head, [fx, y], 18);
+  x.fillStyle = "#3a4045"; x.font = "bold 34px Arial"; x.save(); x.translate((bb[0] + head[0]) / 2 - 40, (bb[1] + head[1]) / 2 + 10); x.rotate(Math.atan2(head[1] - bb[1], head[0] - bb[0])); x.fillText("GARI", -40, 12); x.restore();
+  // chainring + crank
+  x.strokeStyle = "#5b6166"; x.lineWidth = 6; x.beginPath(); x.arc(bb[0], bb[1], 46, 0, 7); x.stroke(); x.beginPath(); x.moveTo(rx, y); x.lineTo(bb[0], bb[1] - 46); x.moveTo(rx, y); x.lineTo(bb[0], bb[1] + 46); x.stroke();
+  tube(bb, [bb[0] + 36, bb[1] + 70], 12, "#2d3135"); x.fillStyle = "#1d2023"; x.fillRect(bb[0] + 14, bb[1] + 66, 52, 14);
+  // seat post + saddle
+  tube(seat, [seat[0] - 12, seat[1] - 60], 12, "#9aa1a6"); x.fillStyle = "#1c1d1f"; x.beginPath(); x.ellipse(seat[0] - 20, seat[1] - 70, 74, 20, -0.05, 0, 7); x.fill();
+  // stem + handlebar + basket
+  tube(head, [head[0] - 18, head[1] - 90], 14, "#9aa1a6"); tube([head[0] - 18, head[1] - 90], [head[0] - 90, head[1] - 100], 12, "#2a2d30");
+  x.strokeStyle = "#4b5258"; x.lineWidth = 5; x.strokeRect(head[0] + 6, head[1] - 70, 140, 100); for (let i = 1; i < 6; i++) { x.beginPath(); x.moveTo(head[0] + 6 + i * 23, head[1] - 70); x.lineTo(head[0] + 6 + i * 23, head[1] + 30); x.stroke(); }
+  // kickstand
+  tube([bb[0] - 30, bb[1] + 10], [bb[0] - 70, y + R - 4], 9, "#80878c");
+  if (withLock === "wheel") lockOnWheel(rx, y, R);
+}
+function lockBody(px, py, ang, s = 1) {
+  x.save(); x.translate(px, py); x.rotate(ang); x.scale(s, s);
+  const g = x.createLinearGradient(0, -48, 0, 48); g.addColorStop(0, "#0db27a"); g.addColorStop(0.55, "#049b6e"); g.addColorStop(1, "#037e59");
+  x.fillStyle = g; x.beginPath(); x.roundRect(-82, -46, 164, 92, 26); x.fill();
+  x.strokeStyle = "rgba(0,0,0,.25)"; x.lineWidth = 3; x.stroke();
+  x.fillStyle = "rgba(255,255,255,.95)"; x.font = "bold 26px Arial"; x.textAlign = "center"; x.fillText("GARI", -8, 10);
+  x.fillStyle = "#e33b33"; x.beginPath(); x.arc(56, -18, 7, 0, 7); x.fill();   // red LED = locked
+  x.fillStyle = "#14251e"; x.beginPath(); x.roundRect(40, 8, 30, 22, 6); x.fill(); // QR window
+  x.restore();
+}
+function lockOnWheel(cx, cy, R) {
+  // O-lock mounted on the seat stays: housing above the rim, bolt across the spokes
+  const a = -Math.PI * 0.34, px = cx + Math.cos(a) * (R - 52), py = cy + Math.sin(a) * (R - 52);
+  x.strokeStyle = "#8d969c"; x.lineWidth = 14; x.beginPath(); x.arc(cx, cy, R - 50, a - 0.42, a + 0.42); x.stroke();
+  lockBody(px, py, a + Math.PI / 2, 1);
+}
+function grain(amount, warm = 0) {
+  const im = x.getImageData(0, 0, W, H), d = im.data;
+  for (let i = 0; i < d.length; i += 4) { const n = (rnd() - 0.5) * amount; d[i] = d[i] + n + warm; d[i + 1] += n; d[i + 2] = d[i + 2] + n - warm; }
+  x.putImageData(im, 0, 0);
+  const v = x.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.95); v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,.35)"); x.fillStyle = v; x.fillRect(0, 0, W, H);
+}
+
+const SCENES = {
+  "01_pass_locked_park":      () => { park(560); bike({ x: 470, y: 840, R: 230, wb: 640 }, "wheel"); grain(16, 3); },
+  "02_pass_locked_street":    () => { street(620); bike({ x: 520, y: 860, R: 220, wb: 610 }, "wheel"); grain(14, 8); },
+  "03_fail_no_lock":          () => { park(560); bike({ x: 470, y: 840, R: 230, wb: 640 }, null); grain(16, 3); },
+  "04_fail_lock_not_on_wheel": () => { street(620); bike({ x: 380, y: 860, R: 220, wb: 610 }, null); shadow(1390, 1105, 110, 18); lockBody(1390, 1070, 0.12, 0.95); grain(14, 8); },
+  "05_fail_too_dark":         () => { park(560); bike({ x: 470, y: 840, R: 230, wb: 640 }, "wheel"); x.fillStyle = "rgba(0,0,8,.86)"; x.fillRect(0, 0, W, H); grain(10); },
+  "06_fail_blurry":           () => { park(560); bike({ x: 470, y: 840, R: 230, wb: 640 }, "wheel"); const t = document.createElement("canvas"); t.width = W; t.height = H; t.getContext("2d").drawImage(c, 0, 0); x.filter = "blur(16px)"; x.drawImage(t, 0, 0); x.filter = "none"; grain(4, 3); },
+  "07_fail_no_bike":          () => { street(620); grain(14, 8); },
+};
+window.SCENES = Object.keys(SCENES);
+window.render = (name) => { seed = 7; x.filter = "none"; x.clearRect(0, 0, W, H); SCENES[name](); return c.toDataURL("image/jpeg", 0.9); };
+</script>
+</body></html>

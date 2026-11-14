@@ -1,0 +1,171 @@
+/* Gari design tokens: one identity for the rider app and the admin dashboard.
+ * Brand green is sampled from the logo (#049B6E). Light and dark are each tuned, not inverted. */
+:root {
+  color-scheme: light;
+  --brand: #049B6E;
+  --brand-strong: #037D59;
+  --brand-ink: #FFFFFF;
+  --brand-soft: #E5F4EE;
+  --brand-softer: #F1F9F5;
+
+  --bg: #F4F7F5;
+  --surface: #FFFFFF;
+  --surface-2: #F6F8F7;
+  --surface-3: #EDF1EF;
+  --text: #0E1D17;
+  --text-2: #3C4C45;
+  --muted: #6B7A73;
+  --line: #E2E8E5;
+  --line-strong: #CCD6D1;
+  --overlay: rgba(10, 22, 17, .42);
+  --shadow-1: 0 1px 2px rgba(14, 29, 23, .06), 0 2px 8px rgba(14, 29, 23, .05);
+  --shadow-2: 0 4px 12px rgba(14, 29, 23, .08), 0 16px 40px rgba(14, 29, 23, .10);
+
+  /* status (always paired with an icon or a label) */
+  --good: #0E9F6E;
+  --good-soft: #E3F5EC;
+  --warn: #C98A06;
+  --warn-soft: #FDF3DC;
+  --bad: #D2423B;
+  --bad-soft: #FCE8E6;
+  --info: #3D6FD8;
+  --info-soft: #E7EEFC;
+
+  /* map */
+  --sea: #CBE3EC;
+  --land: #E7ECE9;
+  --coast: #B8CBD2;
+  --park: #D3EBDB;
+  --road: #FFFFFF;
+  --road-casing: #D2DAD5;
+  --road-major: #FFFFFF;
+  --road-major-casing: #C5D0CA;
+  --area-label: #7E8D86;
+
+  --radius-s: 10px;
+  --radius: 14px;
+  --radius-l: 22px;
+  --font: "IBM Plex Sans Arabic", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --brand: #2BBE89;
+    --brand-strong: #4ED3A1;
+    --brand-ink: #04140E;
+    --brand-soft: rgba(43, 190, 137, .14);
+    --brand-softer: rgba(43, 190, 137, .08);
+    --bg: #0A110E;
+    --surface: #111A16;
+    --surface-2: #16211C;
+    --surface-3: #1C2923;
+    --text: #E7F0EC;
+    --text-2: #BCCBC4;
+    --muted: #869A91;
+    --line: #22312A;
+    --line-strong: #2E4037;
+    --overlay: rgba(0, 0, 0, .55);
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 8px 28px rgba(0, 0, 0, .5);
+    --good: #34C48B; --good-soft: rgba(52, 196, 139, .14);
+    --warn: #E9B13B; --warn-soft: rgba(233, 177, 59, .14);
+    --bad: #F0675F; --bad-soft: rgba(240, 103, 95, .14);
+    --info: #7BA2F2; --info-soft: rgba(123, 162, 242, .14);
+    --sea: #0B1B22; --land: #131C18; --coast: #23343A; --park: #15291F;
+    --road: #24302B; --road-casing: #0E1512; --road-major: #34443D; --road-major-casing: #0C1310;
+    --area-label: #6E8279;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --brand: #2BBE89;
+  --brand-strong: #4ED3A1;
+  --brand-ink: #04140E;
+  --brand-soft: rgba(43, 190, 137, .14);
+  --brand-softer: rgba(43, 190, 137, .08);
+  --bg: #0A110E;
+  --surface: #111A16;
+  --surface-2: #16211C;
+  --surface-3: #1C2923;
+  --text: #E7F0EC;
+  --text-2: #BCCBC4;
+  --muted: #869A91;
+  --line: #22312A;
+  --line-strong: #2E4037;
+  --overlay: rgba(0, 0, 0, .55);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-2: 0 8px 28px rgba(0, 0, 0, .5);
+  --good: #34C48B; --good-soft: rgba(52, 196, 139, .14);
+  --warn: #E9B13B; --warn-soft: rgba(233, 177, 59, .14);
+  --bad: #F0675F; --bad-soft: rgba(240, 103, 95, .14);
+  --info: #7BA2F2; --info-soft: rgba(123, 162, 242, .14);
+  --sea: #0B1B22; --land: #131C18; --coast: #23343A; --park: #15291F;
+  --road: #24302B; --road-casing: #0E1512; --road-major: #34443D; --road-major-casing: #0C1310;
+  --area-label: #6E8279;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  font-size: 15px;
+  line-height: 1.45;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 50px; padding: 0 20px; border-radius: 14px; border: 1px solid transparent;
+  font-weight: 600; font-size: 15.5px; transition: transform .12s ease, background .15s ease, opacity .15s;
+  user-select: none; white-space: nowrap;
+}
+.btn:active { transform: scale(.98); }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+.btn-primary { background: var(--brand); color: var(--brand-ink); }
+.btn-primary:hover { background: var(--brand-strong); }
+.btn-secondary { background: var(--surface-3); color: var(--text); }
+.btn-outline { background: transparent; border-color: var(--line-strong); color: var(--text); }
+.btn-ghost { background: transparent; color: var(--text-2); }
+.btn-danger { background: var(--bad-soft); color: var(--bad); }
+.btn-block { width: 100%; }
+.btn-sm { height: 38px; padding: 0 14px; border-radius: 11px; font-size: 14px; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
+  border-radius: 999px; font-size: 12.5px; font-weight: 600; background: var(--surface-3); color: var(--text-2);
+}
+.chip.good { background: var(--good-soft); color: var(--good); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.bad { background: var(--bad-soft); color: var(--bad); }
+.chip.info { background: var(--info-soft); color: var(--info); }
+.chip.brand { background: var(--brand-soft); color: var(--brand); }
+
+.ico { width: 20px; height: 20px; flex: none; }
+.muted { color: var(--muted); }
+.logo-img { display: block; height: 28px; width: auto; }
+.logo-img.dark-only { display: none; }
+:root[data-theme="dark"] .logo-img.light-only { display: none; }
+:root[data-theme="dark"] .logo-img.dark-only { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .logo-img.light-only { display: none; }
+  :root:not([data-theme="light"]) .logo-img.dark-only { display: block; }
+}
+
+/* leaflet tweaks shared by both pages */
+.leaflet-container { background: var(--sea); font-family: var(--font); }
+.leaflet-control-attribution { background: color-mix(in srgb, var(--surface) 80%, transparent) !important; color: var(--muted) !important; font-size: 10px; }
+.leaflet-control-attribution a { color: var(--muted) !important; }
+.area-label { color: var(--area-label); font-size: 11.5px; font-weight: 600; text-align: center; white-space: nowrap; letter-spacing: .02em;
+  text-shadow: 0 0 3px var(--land), 0 0 3px var(--land), 0 0 6px var(--land); }
+.hide-areas .area-label { display: none; }
+.leaflet-control-zoom { display: none; }

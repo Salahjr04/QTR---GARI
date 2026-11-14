@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gari Admin</title>
+  <meta name="theme-color" content="#049B6E">
+  <link rel="icon" href="assets/icon-64.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="adm">
+    <aside class="side">
+      <a class="side-logo" href="admin.html"><img src="assets/logo.png" alt="Gari" class="logo-img light-only"><img src="assets/logo-light.png" alt="Gari" class="logo-img dark-only"><span class="side-tag" data-a="console"></span></a>
+      <nav class="side-nav" id="nav"></nav>
+      <div class="side-foot">
+        <a class="side-link" href="index.html" id="riderLink"></a>
+        <div class="side-row"><button class="mini-btn" id="langBtn"></button><button class="mini-btn" id="themeBtn"></button></div>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="ahead">
+        <h1 id="title"></h1>
+        <div class="clockbox">
+          <div class="sim-clock"><small id="simDay"></small><b class="num" id="simTime">--:--</b></div>
+          <div class="speed" id="speedSeg" role="group"></div>
+          <button class="run-btn" id="runBtn"></button>
+        </div>
+      </header>
+      <div class="view" id="view"></div>
+    </div>
+  </div>
+  <div class="drawer-wrap" id="detail" hidden><div class="ddrawer" id="detailBody"></div></div>
+  <div class="tip" id="tip" hidden></div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/map/graph.js"></script>
+  <script src="js/map/route.js"></script>
+  <script src="js/map/streets.js"></script>
+  <script src="js/map/basemap.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/forecast.js"></script>
+  <script src="js/sim.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
