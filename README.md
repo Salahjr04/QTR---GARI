@@ -65,7 +65,7 @@ GitHub Pages works too: Settings → Pages → deploy from this branch, folder `
 
 ### How the photo check works (`js/vision.js`)
 The meter stops only when the end-of-ride photo passes:
-- **On-device (default, offline):** brightness and sharpness; a bicycle found as two similar wheels side by side (gradient Hough circle search); the green Gari smart lock found as a colour blob; the lock must sit on a wheel.
+- **On-device (default, offline):** brightness and sharpness; a bicycle found either as two similar wheels side by side (gradient Hough circle search) or by a pretrained object detector (COCO-SSD, trained on real photos that include bicycles; it also works on angled phone photos where the wheels look like ellipses); the green Gari smart lock found as a colour blob; the lock must sit on a wheel. The detector (TensorFlow.js + model, ~19 MB) lives in `vendor/`, loads when the rider locks the bike, and never sends the photo anywhere. If it can't load, the wheel search alone decides.
 - **Claude vision (optional):** add an Anthropic API key in Admin → Settings and the photo is also sent to Claude, which answers in a fixed JSON shape (bicycle? lock visible? lock on wheel? upright? blocking the way?). The key stays in that browser; in production this call belongs on a server.
 - Always combined with the lock state reported by the smart lock and whether the GPS position is inside a parking zone (80 m).
 
@@ -81,6 +81,7 @@ Demand per parking zone = hourly pattern (workdays vs Friday/Saturday, Kuwait ti
 | `js/core.js` | Settings, pricing, simulation clock, shared store, ride API |
 | `js/forecast.js` | AI demand and congestion forecast |
 | `js/vision.js` | Photo check |
+| `vendor/` | Leaflet 1.9.4 (map), TensorFlow.js 4.22.0 and COCO-SSD 2.2.3 with the `lite_mobilenet_v2` weights (bike detector), Apache 2.0; see `vendor/coco-ssd/README.md` |
 | `js/i18n.js` | Arabic / English strings, theme |
 | `js/map/` | Capital Governorate streets, routing graph, parking zones (© OpenStreetMap contributors, ODbL), taken from the `gari` branch of Iron-Reins |
 | `css/tokens.css` | Colours (light and dark), shared by both pages |

@@ -358,6 +358,7 @@
     const ok = await bleSequence("lock"); if (!ok) return;
     flushTrack();
     G.API.lock(st.ride.id, st.me); syncRide(); navigator.vibrate?.([20, 40, 20]); render();
+    G.Vision.warmup?.().catch(() => {}); // load the on-device bike detector while the rider frames the photo
   }
 
   // Bluetooth smart-lock animation (simulated)

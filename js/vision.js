@@ -3,8 +3,8 @@
  *
  * Two engines:
  *  - on-device (default, works offline): image quality (brightness, sharpness), bicycle detection
- *    (two wheels found with a gradient Hough circle search), the green Gari smart lock (colour blob),
- *    and whether that lock sits on a wheel.
+ *    (two wheels found with a gradient Hough circle search, plus a pretrained COCO-SSD object detector
+ *    for real photos), the green Gari smart lock (colour blob), and whether that lock sits on a wheel.
  *  - Claude vision (optional): when an Anthropic API key is set in Admin > Settings, the photo is also
  *    sent to Claude, which answers in a fixed JSON shape. Browser key use is for the prototype only;
  *    in production this call belongs on the server.
@@ -152,14 +152,52 @@ window.Gari = window.Gari || {};
     return res.json();
   }
 
+  // ---------- 4. bicycle in real photos: pretrained object detector (COCO-SSD, runs on the device)
+  // COCO-SSD was trained by Google on the COCO dataset, which includes thousands of real photos of
+  // bicycles. It is stored in vendor/ (tfjs + model weights), so it works offline and nothing leaves the
+  // phone. It is loaded on first use; if it can't load in time, the wheel search above still decides.
+  const VENDOR = (() => { try { return new URL("../vendor/", document.currentScript.src).href; } catch { return "vendor/"; } })();
+  const loadScript = (src) => new Promise((ok, bad) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => bad(new Error("load " + src)); document.head.appendChild(s); });
+  let detectorP = null;
+  function warmup() {
+    if (!detectorP) detectorP = (async () => {
+      if (!window.tf) await loadScript(VENDOR + "tfjs/tf.min.js");
+      if (!window.cocoSsd) await loadScript(VENDOR + "coco-ssd/coco-ssd.min.js");
+      return window.cocoSsd.load({ base: "lite_mobilenet_v2", modelUrl: VENDOR + "coco-ssd/model/model.json" });
+    })().catch((e) => { detectorP = null; throw e; });
+    return detectorP;
+  }
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_, bad) => setTimeout(() => bad(new Error("timeout")), ms))]);
+  async function detectBike(bmp) {
+    try {
+      const model = await withTimeout(warmup(), 15000);
+      const img = draw(bmp, 480);
+      const found = await withTimeout(model.detect(img.c, 10, 0.25), 8000);
+      const bikes = found.filter((p) => p.class === "bicycle").sort((a, b) => b.score - a.score);
+      const b = bikes[0];
+      return { ran: true, score: b ? b.score : 0, box: b ? [b.bbox[0] / img.w, b.bbox[1] / img.h, b.bbox[2] / img.w, b.bbox[3] / img.h] : null, aspect: img.h / img.w };
+    } catch (e) { console.warn("bike detector unavailable, using the wheel search only", e); return { ran: false, score: 0, box: null }; }
+  }
+  // wheel positions estimated from a detected bicycle box (side view: one wheel at each lower corner)
+  function wheelsFromBox(box, aspect) {
+    const [x, y, w, h] = box, hw = h * aspect; // box height in width units
+    const r = Math.min(hw * 0.36, w * 0.27);
+    return [{ x: x + r, y: y + h - r / aspect, r, sc: 0 }, { x: x + w - r, y: y + h - r / aspect, r, sc: 0 }];
+  }
+
   // ---------- main
   async function analyze(file, ctx = {}) {
     const t0 = performance.now();
     const bmp = await loadBitmap(file);
     const big = draw(bmp, 320), small = draw(bmp, 200);
     const thumbC = draw(bmp, 480).c, thumb = thumbC.toDataURL("image/jpeg", 0.72);
-    const q = quality(big), lock = findLock(big), bike = findWheels(small);
+    const q = quality(big), lock = findLock(big), wheels = findWheels(small);
     const settings = ctx.settings || G.Store.get().settings;
+    // a bicycle counts when the wheel search finds two wheels OR the detector sees a bicycle (real photos)
+    const det = ctx.detector === false ? { ran: false, score: 0, box: null } : await detectBike(bmp);
+    const detOk = det.score >= 0.5;
+    const bike = wheels.found ? { ...wheels, confidence: Math.max(wheels.confidence, det.score) }
+      : detOk ? { found: true, confidence: det.score, wheels: wheelsFromBox(det.box, det.aspect) } : wheels;
     let ai = null, engine = "device";
     const wantClaude = (settings.visionProxy || settings.claudeKey) && settings.visionEngine !== "device";
     if (wantClaude) { try { const img = draw(bmp, 1024).c.toDataURL("image/jpeg", 0.85); ai = settings.visionProxy ? await askProxy(img, settings) : await askClaude(img, settings); engine = "claude"; } catch (e) { console.warn("Claude vision unavailable, using on-device result", e); ai = null; } }
@@ -192,11 +230,11 @@ window.Gari = window.Gari || {};
     const verdict = anyFail ? "fail" : anyWarn ? "review" : "pass";
     return {
       engine, verdict, checks, ms: Math.round(performance.now() - t0), thumb,
-      metrics: { ...q, lockFrac: +(lock.frac || 0).toFixed(4), bikeConfidence: +bike.confidence.toFixed(2) },
-      overlay: { wheels: bike.wheels, lock: lock.found ? lock.box : null, aspect },
+      metrics: { ...q, lockFrac: +(lock.frac || 0).toFixed(4), bikeConfidence: +bike.confidence.toFixed(2), wheelSearch: wheels.found, detector: det.ran ? +det.score.toFixed(2) : null },
+      overlay: { wheels: bike.wheels, lock: lock.found ? lock.box : null, aspect, bikeBox: detOk ? det.box : null },
       ai, zone: zone ? { spot: zone.spot?.id, d: Math.round(zone.d) } : null,
     };
   }
 
-  G.Vision = { analyze };
+  G.Vision = { analyze, warmup };
 })();
