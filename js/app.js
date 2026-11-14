@@ -32,7 +32,10 @@
     paint();
     $("#authLang").onclick = () => { G.setLang(G.getLang() === "ar" ? "en" : "ar"); paint(); };
     $("#authTheme").onclick = () => { cycleTheme(); paint(); };
+    document.querySelectorAll("[data-legal]").forEach((b) => (b.onclick = () => showLegal(b.dataset.legal)));
+    const consentOk = () => { const ok = $("#c18").checked && $("#cHelmet").checked; $("#consentErr").textContent = ok ? "" : t("needConsent"); if (!ok) $(".consent").classList.add("shake"), setTimeout(() => $(".consent").classList.remove("shake"), 400); return ok; };
     document.querySelectorAll("[data-sso]").forEach((b) => (b.onclick = () => {
+      if (!consentOk()) return;
       const p = b.dataset.sso, name = p === "apple" ? "Apple ID" : "Google";
       b.innerHTML = `<span class="spinner dark"></span>`;
       setTimeout(() => { toast(t("providerSoon", { p: p === "apple" ? "Apple" : "Google" })); finishAuth(G.signIn(p, G.getLang() === "ar" ? "مستخدم " + name : name + " user")); }, 900);
@@ -40,10 +43,13 @@
     $("#authForm").onsubmit = (e) => {
       e.preventDefault(); const u = $("#authUser").value.trim(), p = $("#authPass").value;
       const err = !u ? t("needUser") : p.length < 4 ? t("needPass") : "";
-      $("#authErr").textContent = err; if (err) return;
+      $("#authErr").textContent = err; if (err || !consentOk()) return;
       finishAuth(G.signIn("password", u));
     };
-    $("#authSkip").onclick = () => finishAuth(G.signIn("guest", t("guest")));
+    $("#authSkip").onclick = () => consentOk() && finishAuth(G.signIn("guest", t("guest")));
+  }
+  function showLegal(k) {
+    modal.open(`<div class="modal-head"><h3>${t(k === "terms" ? "termsT" : "privacyT")}</h3><button class="icon-btn" data-close>${I.x}</button></div><div class="legal-body">${t(k === "terms" ? "termsBody" : "privacyBody")}</div>`);
   }
   function finishAuth(user) {
     st.user = G.Session.get();
@@ -361,7 +367,7 @@
       const b = modal.open(`<div class="ble">
         <div class="ble-lock ${kind}"><svg viewBox="0 0 64 64" width="88" height="88"><path class="shackle" d="M20 30V20a12 12 0 0 1 24 0v10" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><rect x="12" y="28" width="40" height="30" rx="9" fill="var(--brand)"/><circle cx="32" cy="43" r="4" fill="var(--brand-ink)"/></svg><span class="ble-waves"></span></div>
         <p class="ble-step" id="bleStep">${steps[0]}</p>
-        ${kind === "unlock" && !quick ? `<p class="muted small num">${t("unlockFee")} · ${G.money(S().unlockFee)}</p>` : ""}
+        ${kind === "unlock" && !quick ? `<p class="muted small num">${t("unlockFee")} · ${G.money(S().unlockFee)}</p><p class="helmet-note">${I.helmet}<span>${t("helmetReminder")}</span></p>` : ""}
       </div>`, { cls: "center-modal", onClose: () => resolve(false) });
       const box = b.querySelector(".ble-lock"), stepEl = $("#bleStep", b);
       setTimeout(() => (stepEl.textContent = steps[1]), 700);
@@ -508,13 +514,14 @@
       <div class="drawer-sec"><div class="sec-label">${I.moon}${t("theme")}</div>${seg("theme", [["light", t("light")], ["dark", t("dark")], ["auto", t("auto")]], G.getTheme())}</div>
       <div class="drawer-foot">
         <a class="drawer-link" href="admin.html">${I.chart}<span>${t("admin")}</span></a>
+        <p class="legal"><button type="button" data-d="terms">${t("termsT")}</button><span>·</span><button type="button" data-d="privacy">${t("privacyT")}</button></p>
         <button class="drawer-link danger-text" data-d="signout">${I.logout}<span>${t("signOut")}</span></button>
       </div>`;
     d.hidden = false; $("#scrim").hidden = false; requestAnimationFrame(() => { d.classList.add("open"); $("#scrim").classList.add("open"); });
     $("#scrim").onclick = closeDrawer;
     d.querySelectorAll("[data-d]").forEach((b) => (b.onclick = () => {
       const k = b.dataset.d; closeDrawer();
-      if (k === "history") showHistory(); if (k === "wallet") G.UI.choosePayment(st.user); if (k === "pricing") showPricing(); if (k === "how") showHow();
+      if (k === "history") showHistory(); if (k === "wallet") G.UI.choosePayment(st.user); if (k === "pricing") showPricing(); if (k === "how") showHow(); if (k === "terms" || k === "privacy") showLegal(k);
       if (k === "signout") { G.Session.clear(); st.user = null; $("#app").hidden = true; showAuth(); }
     }));
     d.querySelectorAll("[data-seg]").forEach((g) => g.querySelectorAll("button").forEach((b) => (b.onclick = () => {

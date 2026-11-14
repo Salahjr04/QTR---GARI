@@ -31,6 +31,7 @@ window.Gari = window.Gari || {};
     battery: P('<rect x="2.5" y="7" width="17" height="10" rx="2"/><path d="M22 10.5v3"/>'),
     bluetooth: P('<path d="M7 7l10 10-5 4V3l5 4L7 17"/>'),
     tag: P('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/>'),
+    helmet: P('<path d="M3 15a9 9 0 0 1 18 0v1H3z"/><path d="M12 6v5M8 7.5l2 3.5M16 7.5l-2 3.5M2 18h20"/>'),
     help: P('<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>'),
   };
 

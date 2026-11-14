@@ -42,7 +42,12 @@
         <p class="hint" data-t="createHint"></p>
       </form>
     </div>
-    <p class="terms" data-t="terms"></p>
+    <div class="consent">
+      <label><input type="checkbox" id="c18"><span data-t="age18"></span></label>
+      <label><input type="checkbox" id="cHelmet"><span data-t="helmet"></span></label>
+      <p class="legal"><button type="button" data-legal="terms" data-t="termsT"></button><span>·</span><button type="button" data-legal="privacy" data-t="privacyT"></button></p>
+      <p class="form-err" id="consentErr" role="alert"></p>
+    </div>
     <button class="skip" id="authSkip" data-t="skip"></button>
   </section>
 
