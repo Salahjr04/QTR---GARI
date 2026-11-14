@@ -14,6 +14,7 @@ Polishing, small fixes, small layout tweaks and **new** features are welcome. Re
 - Make the lock openable/closable any way other than through the app.
 - Delete or rewrite the map data in `js/map/` (OpenStreetMap streets, routing graph, real parking spots).
 - Break Arabic (default, RTL) or English. Every new UI string goes into **both** `ar` and `en` in `js/i18n.js` (admin strings: the `A` object in `js/admin.js`).
+- Put an API key or any secret in the website, the repo, logs or chat. Claude photo checks on a public site go through `server/` only; follow `server/README.md` and `docs/SECURE_API.md`.
 - Rename localStorage keys (`gari.db.v1`, `gari.clock.v1`, ...) without a migration.
 
 ## Core features (must keep working)
@@ -51,4 +52,5 @@ Photos: `test-photos/` holds sample upload photos with expected results; keep th
 | `js/i18n.js` | strings (ar/en), theme |
 | `js/map/` | basemap, streets, routing graph, parking spots |
 | `css/tokens.css` | shared colours (light + dark) |
+| `server/` | Cloudflare Worker that keeps the Anthropic API key secret (read `server/README.md` before touching it) |
 More detail: `README.md`, `docs/ARCHITECTURE.md`.
